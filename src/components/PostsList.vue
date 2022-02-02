@@ -23,7 +23,7 @@
       </div>
 
       <div class="post-date text-faded">
-        {{ post.publishedAt }}
+        <AppDate :timestamp="post.publishedAt" />
       </div>
     </div>
   </div>
@@ -31,6 +31,7 @@
 
 <script>
 import sourceData from '@/data.json'
+
 export default {
   props: {
     posts: {

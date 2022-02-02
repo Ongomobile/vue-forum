@@ -2,15 +2,18 @@
   <div class="col-large push-top">
     <h1>{{ thread.title }}</h1>
     <post-list :posts="threadPosts" />
+    <post-editor @save="addPost" />
   </div>
 </template>
 
 <script>
 import sourceData from '@/data.json'
 import PostList from '@/components/PostsList.vue'
+import PostEditor from '@/components/PostEditor.vue'
 export default {
   components: {
-    PostList
+    PostList,
+    PostEditor
   },
   props: {
     id: {
@@ -30,6 +33,16 @@ export default {
     },
     threadPosts() {
       return this.posts.filter((post) => post.threadId === this.id)
+    }
+  },
+  methods: {
+    addPost(eventData) {
+      const post = {
+        ...eventData.post,
+        threadId: this.id
+      }
+      this.posts.push(post)
+      this.thread.posts.push(post.id)
     }
   }
 }
