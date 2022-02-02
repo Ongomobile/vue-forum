@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Home from '@/pages/Home.vue'
-import Thread from '@/pages/Thread.vue'
+import ThreadShow from '@/pages/ThreadShow.vue'
 import NotFound from '@/pages/NotFound.vue'
 import sourceData from '@/data.json'
 
@@ -12,8 +12,8 @@ const routes = [
   },
   {
     path: '/thread/:id',
-    name: 'Thread',
-    component: Thread,
+    name: 'ThreadShow',
+    component: ThreadShow,
     props: true,
     // Route guard
     beforeEnter(to, from, next) {
@@ -28,6 +28,7 @@ const routes = [
         next({
           name: 'NotFound',
           params: { pathMatch: to.path.split('/').slice(1) },
+          // Preserve query & existing hash
           query: to.query,
           hash: to.hash
         })
