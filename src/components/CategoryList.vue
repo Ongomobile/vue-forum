@@ -9,7 +9,6 @@
 </template>
 
 <script>
-import sourceData from '@/data.json'
 import ForumList from '@/components/ForumList'
 export default {
   components: { ForumList },
@@ -21,7 +20,7 @@ export default {
   },
   methods: {
     getForumsForCategory(category) {
-      return sourceData.forums.filter(
+      return this.$store.state.forums.filter(
         (forum) => forum.categoryId === category.id
       )
     }

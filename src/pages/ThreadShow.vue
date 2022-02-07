@@ -1,15 +1,24 @@
 <template>
   <div class="col-large push-top">
-    <h1>{{ thread.title }}</h1>
+    <h1>
+      {{ thread.title }}
+      <router-link
+        :to="{ name: 'ThreadEdit', id: this.id }"
+        class="btn-green btn-small"
+        tag="button"
+      >
+        Edit Thread
+      </router-link>
+    </h1>
     <post-list :posts="threadPosts" />
     <post-editor @save="addPost" />
   </div>
 </template>
 
 <script>
-import sourceData from '@/data.json'
 import PostList from '@/components/PostsList.vue'
 import PostEditor from '@/components/PostEditor.vue'
+import { findById } from '@/helpers'
 export default {
   components: {
     PostList,
@@ -21,15 +30,15 @@ export default {
       typs: String
     }
   },
-  data() {
-    return {
-      threads: sourceData.threads,
-      posts: sourceData.posts
-    }
-  },
   computed: {
+    threads() {
+      return this.$store.state.threads
+    },
+    posts() {
+      return this.$store.state.posts
+    },
     thread() {
-      return this.threads.find((thread) => thread.id === this.id) // same as this.$route.params.id
+      return findById(this.threads, this.id) // same as this.$route.params.id
     },
     threadPosts() {
       return this.posts.filter((post) => post.threadId === this.id)
@@ -41,8 +50,7 @@ export default {
         ...eventData.post,
         threadId: this.id
       }
-      this.posts.push(post)
-      this.thread.posts.push(post.id)
+      this.$store.dispatch('createPost', post)
     }
   }
 }

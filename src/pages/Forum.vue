@@ -5,7 +5,12 @@
         <h1>{{ forum.name }}</h1>
         <p class="text-lead">{{ forum.description }}</p>
       </div>
-      <a href="new-thread.html" class="btn-green btn-small">Start a thread</a>
+      <router-link
+        :to="{ name: 'ThreadCreate', params: { forumId: forum.id } }"
+        class="btn-green btn-small"
+      >
+        Start a thread
+      </router-link>
     </div>
   </div>
   <div class="col-full push-top">
@@ -14,8 +19,8 @@
 </template>
 
 <script>
-import sourceData from '@/data.json'
 import ThreadList from '@/components/ThreadList'
+import { findById } from '@/helpers'
 export default {
   components: {
     ThreadList
@@ -28,10 +33,12 @@ export default {
   },
   computed: {
     forum() {
-      return sourceData.forums.find((forum) => forum.id === this.id)
+      return findById(this.$store.state.forums, this.id)
     },
     threads() {
-      return sourceData.threads.filter((thread) => thread.forumId === this.id)
+      return this.$store.state.threads.filter(
+        (thread) => thread.forumId === this.id
+      )
     }
   }
 }

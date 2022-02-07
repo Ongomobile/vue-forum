@@ -10,7 +10,7 @@
 
 <script>
 import ForumList from '@/components/ForumList'
-import sourceData from '@/data.json'
+import { findById } from '@/helpers'
 export default {
   components: {
     ForumList
@@ -23,12 +23,12 @@ export default {
   },
   computed: {
     category() {
-      return sourceData.categories.find((category) => category.id === this.id)
+      return findById(this.$store.state.categories, this.id)
     }
   },
   methods: {
     getForumsForCategory(category) {
-      return sourceData.forums.filter(
+      return this.$store.state.forums.filter(
         (forum) => forum.categoryId === category.id
       )
     }
