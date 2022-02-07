@@ -2,12 +2,7 @@
   <div class="col-full">
     <form @submit.prevent="save">
       <div class="form-group">
-        <label for="thread_title">Title:</label>
-        <input type="text" id="thread_title" class="form-input" name="title" />
-      </div>
-
-      <div class="form-group">
-        <label for="thread_content">Content:</label>
+        <label for="thread_content">Reply:</label>
         <textarea
           v-model="text"
           id="thread_content"

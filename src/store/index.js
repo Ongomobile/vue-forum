@@ -1,6 +1,7 @@
 import { createLogger, createStore } from 'vuex'
 import sourceData from '@/data'
 import { findById, upsert } from '@/helpers'
+
 export default createStore({
   plugins: [createLogger()],
   state: {
@@ -8,26 +9,49 @@ export default createStore({
     authId: 'jUjmgCurRRdzayqbRMO7aTG9X1G2'
   },
   getters: {
-    authUser: (state) => {
-      const user = findById(state.users, state.authId)
-      if (!user) return null
+    authUser: (state, getters) => {
+      return getters.user(state.authId)
+    },
+    user: (state) => {
+      return (id) => {
+        const user = findById(state.users, id)
+        if (!user) return null
 
-      return {
-        ...user,
+        return {
+          ...user,
 
-        // get is javascript keyword that in this case allows us to access as properties of the object
-        // like authUser.posts etc
-        get posts() {
-          return state.posts.filter((post) => post.userId === user.id)
-        },
-        get postsCount() {
-          return this.posts.length
-        },
-        get threads() {
-          return state.threads.filter((thread) => thread.userId === user.id)
-        },
-        get threadsCount() {
-          return this.threads.length
+          // get is javascript keyword that in this case allows us to access as properties of the object
+          // like authUser.posts etc
+          get posts() {
+            return state.posts.filter((post) => post.userId === user.id)
+          },
+          get postsCount() {
+            return this.posts.length
+          },
+          get threads() {
+            return state.threads.filter((thread) => thread.userId === user.id)
+          },
+          get threadsCount() {
+            return this.threads.length
+          }
+        }
+      }
+    },
+    thread: (state) => {
+      return (id) => {
+        const thread = findById(state.threads, id)
+        return {
+          ...thread,
+          get author() {
+            return findById(state.users, thread.userId)
+          },
+          get repliesCount() {
+            // subtract first post
+            return thread.posts.length - 1
+          },
+          get contributorsCount() {
+            return thread.contributors.length
+          }
         }
       }
     }
@@ -39,8 +63,12 @@ export default createStore({
       post.publishedAt = Math.floor(Date.now() / 1000)
       commit('setPost', { post })
       commit('appendPostToThread', {
-        postId: post.id,
-        threadId: post.threadId
+        childId: post.id,
+        parentId: post.threadId
+      })
+      commit('appendContributorToThread', {
+        childId: state.authId,
+        parentId: post.threadId
       })
     },
     updateUser({ commit }, user) {
@@ -52,8 +80,8 @@ export default createStore({
       const publishedAt = Math.floor(Date.now() / 1000)
       const thread = { forumId, title, publishedAt, userId, id }
       commit('setThread', { thread })
-      commit('appendThreadtoUser', { userId, threadId: id })
-      commit('appendThreadtoForum', { forumId, threadId: id })
+      commit('appendThreadtoUser', { parentId: userId, childId: id })
+      commit('appendThreadtoForum', { parentId: forumId, childId: id })
       dispatch('createPost', { text, threadId: id })
       return findById(state.threads, id)
     },
@@ -78,20 +106,33 @@ export default createStore({
       const userIndex = state.users.findIndex((user) => user.id === userId)
       state.users[userIndex] = user
     },
-    appendPostToThread(state, { postId, threadId }) {
-      const thread = findById(state.threads, threadId)
-      thread.posts = thread.posts || []
-      thread.posts.push(postId)
-    },
-    appendThreadtoForum(state, { forumId, threadId }) {
-      const forum = findById(state.forums, forumId)
-      forum.threads = forum.posts || []
-      forum.threads.push(threadId)
-    },
-    appendThreadtoUser(state, { userId, threadId }) {
-      const user = findById(state.users, userId)
-      user.threads = user.threads || []
-      user.threads.push(threadId)
-    }
+    appendPostToThread: makeAppendChildToParrentMutation({
+      parent: 'threads',
+      child: 'posts'
+    }),
+
+    appendThreadtoForum: makeAppendChildToParrentMutation({
+      parent: 'forums',
+      child: 'threads'
+    }),
+    appendThreadtoUser: makeAppendChildToParrentMutation({
+      parent: 'users',
+      child: 'threads'
+    }),
+    appendContributorToThread: makeAppendChildToParrentMutation({
+      parent: 'threads',
+      child: 'contributors'
+    })
   }
 })
+
+// Higher order function for mutations must be a regular function because of scope functions are hoisted
+function makeAppendChildToParrentMutation({ parent, child }) {
+  return (state, { childId, parentId }) => {
+    const resource = findById(state[parent], parentId)
+    resource[child] = resource[child] || []
+    if (!resource[child].includes(childId)) {
+      resource[child].push(childId)
+    }
+  }
+}
