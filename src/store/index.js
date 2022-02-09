@@ -1,11 +1,15 @@
 import { createLogger, createStore } from 'vuex'
-import sourceData from '@/data'
 import { findById, upsert } from '@/helpers'
+import firebase from 'firebase/compat'
 
 export default createStore({
   plugins: [createLogger()],
   state: {
-    ...sourceData,
+    categories: [],
+    forums: [],
+    threads: [],
+    posts: [],
+    users: [],
     authId: 'jUjmgCurRRdzayqbRMO7aTG9X1G2'
   },
   getters: {
@@ -61,7 +65,7 @@ export default createStore({
       post.id = 'qqqq' + Math.random()
       post.userId = state.authId
       post.publishedAt = Math.floor(Date.now() / 1000)
-      commit('setPost', { post })
+      commit('setItem', { resource: 'posts', item: post })
       commit('appendPostToThread', {
         childId: post.id,
         parentId: post.threadId
@@ -71,40 +75,83 @@ export default createStore({
         parentId: post.threadId
       })
     },
-    updateUser({ commit }, user) {
-      commit('setUser', { user, userId: user.id })
-    },
+
     async createThread({ commit, state, dispatch }, { text, title, forumId }) {
       const id = 'qqqq' + Math.random()
       const userId = state.authId
       const publishedAt = Math.floor(Date.now() / 1000)
       const thread = { forumId, title, publishedAt, userId, id }
-      commit('setThread', { thread })
+      commit('setItem', { resource: 'threads', item: thread })
       commit('appendThreadtoUser', { parentId: userId, childId: id })
       commit('appendThreadtoForum', { parentId: forumId, childId: id })
       dispatch('createPost', { text, threadId: id })
       return findById(state.threads, id)
     },
+
     async updateThread({ commit, state }, { title, text, id }) {
       const thread = findById(state.threads, id)
       const post = findById(state.posts, thread.posts[0])
       const newThread = { ...thread, title }
       const newPost = { ...post, text }
-      commit('setThread', { thread: newThread })
-      commit('setPost', { post: newPost })
+      commit('setItem', { resource: 'threads', item: newThread })
+      commit('setItem', { resource: 'posts', item: newPost })
       return newThread
+    },
+
+    updateUser({ commit }, user) {
+      commit('setItem', { resource: 'users', item: user })
+    },
+
+    fetchThread({ dispatch }, { id }) {
+      return this.dispatch('fetchItem', {
+        resource: 'threads',
+        id,
+        emoji: '📄'
+      })
+    },
+
+    fetchUser({ dispatch }, { id }) {
+      return this.dispatch('fetchItem', { resource: 'users', id, emoji: '🙋' })
+    },
+
+    fetchPost({ dispatch }, { id }) {
+      return this.dispatch('fetchItem', { resource: 'posts', id, emoji: '💬' })
+    },
+    fetchThreads({ dispatch }, { ids }) {
+      return dispatch('fetchItems', { resource: 'threads', ids, emoji: '📄' })
+    },
+
+    fetchUsers({ dispatch }, { ids }) {
+      return dispatch('fetchItems', { resource: 'users', ids, emoji: '🙋' })
+    },
+
+    fetchPosts({ dispatch }, { ids }) {
+      return dispatch('fetchItems', { resource: 'posts', ids, emoji: '💬' })
+    },
+
+    fetchItem({ state, commit }, { id, emoji, resource }) {
+      console.log('🔥', emoji, id)
+      return new Promise((resolve) => {
+        firebase
+          .firestore()
+          .collection(resource)
+          .doc(id)
+          .onSnapshot((doc) => {
+            const item = { ...doc.data(), id: doc.id }
+            commit('setItem', { resource, id, item })
+            resolve(item)
+          })
+      })
+    },
+    fetchItems({ dispatch }, { ids, resource, emoji }) {
+      return Promise.all(
+        ids.map((id) => dispatch('fetchItem', { id, resource, emoji }))
+      )
     }
   },
   mutations: {
-    setPost(state, { post }) {
-      upsert(state.posts, post)
-    },
-    setThread(state, { thread }) {
-      upsert(state.threads, thread)
-    },
-    setUser(state, { user, userId }) {
-      const userIndex = state.users.findIndex((user) => user.id === userId)
-      state.users[userIndex] = user
+    setItem(state, { resource, item }) {
+      upsert(state[resource], item)
     },
     appendPostToThread: makeAppendChildToParrentMutation({
       parent: 'threads',
