@@ -1,17 +1,16 @@
 <template>
-  <div class="container">
-    <div class="col-full push-top">
-      <h1>
-        Create new thread in <i>{{ forum.name }}</i>
-      </h1>
-      <ThreadEditor @save="save" @cancel="cancel" />
-    </div>
+  <div v-if="forum" class="col-full push-top">
+    <h1>
+      Create new thread in <i>{{ forum.name }}</i>
+    </h1>
+    <ThreadEditor @save="save" @cancel="cancel" />
   </div>
 </template>
 
 <script>
 import ThreadEditor from '@/components/ThreadEditor'
 import { findById } from '@/helpers'
+import { mapActions } from 'vuex'
 export default {
   components: { ThreadEditor },
   props: {
@@ -23,8 +22,9 @@ export default {
     }
   },
   methods: {
+    ...mapActions(['createThread', 'fetchForum']),
     async save({ title, text }) {
-      const thread = await this.$store.dispatch('createThread', {
+      const thread = await this.createThread({
         forumId: this.forum.id,
         title,
         text
@@ -34,6 +34,9 @@ export default {
     cancel() {
       this.$router.push({ name: 'Forum', params: { id: this.forum.id } })
     }
+  },
+  created() {
+    this.fetchForum({ id: this.forumId })
   }
 }
 </script>

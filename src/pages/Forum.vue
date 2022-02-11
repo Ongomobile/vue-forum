@@ -1,5 +1,5 @@
 <template>
-  <div class="col-full push-top">
+  <div v-if="forum" class="col-full push-top">
     <div class="forum-header">
       <div class="forum-details">
         <h1>{{ forum.name }}</h1>
@@ -21,6 +21,7 @@
 <script>
 import ThreadList from '@/components/ThreadList'
 import { findById } from '@/helpers'
+import { mapActions } from 'vuex'
 export default {
   components: {
     ThreadList
@@ -36,10 +37,24 @@ export default {
       return findById(this.$store.state.forums, this.id)
     },
     threads() {
+      if (!this.forum) return []
       return this.forum.threads.map((threadId) =>
         this.$store.getters.thread(threadId)
       )
     }
+  },
+  methods: {
+    ...mapActions(['fetchForum', 'fetchThreads', 'fetchUsers'])
+  },
+  async created() {
+    // We are using create hook because we need acess to id
+    const forum = await this.fetchForum({ id: this.id })
+    const threads = await this.fetchThreads({
+      ids: forum.threads
+    })
+    this.fetchUsers({
+      ids: threads.map((thread) => thread.userId)
+    })
   }
 }
 </script>

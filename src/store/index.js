@@ -1,6 +1,7 @@
 import { createLogger, createStore } from 'vuex'
 import { findById, upsert } from '@/helpers'
 import firebase from 'firebase/compat'
+// import {}
 
 export default createStore({
   plugins: [createLogger()],
@@ -44,6 +45,7 @@ export default createStore({
     thread: (state) => {
       return (id) => {
         const thread = findById(state.threads, id)
+        if (!thread) return {}
         return {
           ...thread,
           get author() {
@@ -101,32 +103,78 @@ export default createStore({
     updateUser({ commit }, user) {
       commit('setItem', { resource: 'users', item: user })
     },
-
+    // ---------------------------------------
+    // Fetch Single Resource
+    // ---------------------------------------
+    fetchCategory({ dispatch }, { id }) {
+      return dispatch('fetchItem', { emoji: '🏷', resource: 'categories', id })
+    },
+    fetchForum({ dispatch }, { id }) {
+      return dispatch('fetchItem', { emoji: '🏁', resource: 'forums', id })
+    },
     fetchThread({ dispatch }, { id }) {
-      return this.dispatch('fetchItem', {
-        resource: 'threads',
-        id,
-        emoji: '📄'
+      return dispatch('fetchItem', { emoji: '📄', resource: 'threads', id })
+    },
+    fetchPost({ dispatch }, { id }) {
+      return dispatch('fetchItem', { emoji: '💬', resource: 'posts', id })
+    },
+    fetchUser({ dispatch }, { id }) {
+      return dispatch('fetchItem', { emoji: '🙋', resource: 'users', id })
+    },
+
+    // ---------------------------------------
+    // Fetch All of a Resource
+    // ---------------------------------------
+    // fetchAllCategories({ commit }) {
+    //   console.log('🔥', '🏷', 'all')
+    //   return new Promise((resolve) => {
+    //     firebase
+    //       .firestore()
+    //       .collection('categories')
+    //       .onSnapshot(async (querySnap) => {
+    //         const categories = querySnap.docs.map((doc) => {
+    //           const item = { id: doc.id, ...doc.data() }
+    //           commit('setItem', { resource: 'categories', item })
+    //           return item
+    //         })
+    //         resolve(categories)
+    //       })
+    //   })
+    // },
+    fetchAllCategories({ commit }) {
+      console.log('🔥', '🏷', 'all')
+      return new Promise((resolve) => {
+        firebase
+          .firestore()
+          .collection('categories')
+          .onSnapshot((querySnapshot) => {
+            const categories = querySnapshot.docs.map((doc) => {
+              const item = { id: doc.id, ...doc.data() }
+              commit('setItem', { resource: 'categories', item })
+              return item
+            })
+            resolve(categories)
+          })
       })
     },
 
-    fetchUser({ dispatch }, { id }) {
-      return this.dispatch('fetchItem', { resource: 'users', id, emoji: '🙋' })
+    // ---------------------------------------
+    // Fetch Multiple Resources
+    // ---------------------------------------
+    fetchCategories({ dispatch }, { ids }) {
+      return dispatch('fetchItems', { resource: 'categories', ids, emoji: '🏷' })
     },
-
-    fetchPost({ dispatch }, { id }) {
-      return this.dispatch('fetchItem', { resource: 'posts', id, emoji: '💬' })
+    fetchForums({ dispatch }, { ids }) {
+      return dispatch('fetchItems', { resource: 'forums', ids, emoji: '🏁' })
     },
     fetchThreads({ dispatch }, { ids }) {
       return dispatch('fetchItems', { resource: 'threads', ids, emoji: '📄' })
     },
-
-    fetchUsers({ dispatch }, { ids }) {
-      return dispatch('fetchItems', { resource: 'users', ids, emoji: '🙋' })
-    },
-
     fetchPosts({ dispatch }, { ids }) {
       return dispatch('fetchItems', { resource: 'posts', ids, emoji: '💬' })
+    },
+    fetchUsers({ dispatch }, { ids }) {
+      return dispatch('fetchItems', { resource: 'users', ids, emoji: '🙋' })
     },
 
     fetchItem({ state, commit }, { id, emoji, resource }) {
@@ -177,6 +225,12 @@ export default createStore({
 function makeAppendChildToParrentMutation({ parent, child }) {
   return (state, { childId, parentId }) => {
     const resource = findById(state[parent], parentId)
+    if (!resource) {
+      console.warn(
+        `Appending ${child} ${childId} to ${parent} ${parentId} failed because the parent didn't exist`
+      )
+      return
+    }
     resource[child] = resource[child] || []
     if (!resource[child].includes(childId)) {
       resource[child].push(childId)
