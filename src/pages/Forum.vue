@@ -49,12 +49,8 @@ export default {
   async created() {
     // We are using create hook because we need acess to id
     const forum = await this.fetchForum({ id: this.id })
-    const threads = await this.fetchThreads({
-      ids: forum.threads
-    })
-    this.fetchUsers({
-      ids: threads.map((thread) => thread.userId)
-    })
+    const threads = await this.fetchThreads({ ids: forum.threads })
+    this.fetchUsers({ ids: threads.map((thread) => thread.userId) })
   }
 }
 </script>

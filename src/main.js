@@ -2,10 +2,15 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from '@/router'
 import store from '@/store'
-import firebase from 'firebase/compat/app'
+import { initializeApp } from 'firebase/app'
+import { getFirestore } from 'firebase/firestore'
+
+// import firebase from 'firebase/app'
 import firebaseConfig from '@/config/firebase'
 
-firebase.initializeApp(firebaseConfig)
+// firebase.initializeApp(firebaseConfig)
+const fbApp = initializeApp(firebaseConfig)
+const db = getFirestore(fbApp)
 
 const forumApp = createApp(App)
 forumApp.use(router)
@@ -26,3 +31,5 @@ requireComponent.keys().forEach(function (fileName) {
 })
 
 forumApp.mount('#app')
+
+export default db

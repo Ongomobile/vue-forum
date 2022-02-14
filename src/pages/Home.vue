@@ -23,7 +23,7 @@ export default {
     const categories = await this.fetchAllCategories()
     const forumIds = categories.map((category) => category.forums).flat()
     this.fetchForums({ ids: forumIds })
-    console.log('before create', this.categories)
+    console.log('created', this.categories)
   }
 }
 </script>
