@@ -4,10 +4,9 @@ import router from '@/router'
 import store from '@/store'
 import { initializeApp } from 'firebase/app'
 import { getFirestore } from 'firebase/firestore'
-
 // import firebase from 'firebase/app'
 import firebaseConfig from '@/config/firebase'
-
+import FontAwesome from '@/plugins/FontAwesome'
 // firebase.initializeApp(firebaseConfig)
 const fbApp = initializeApp(firebaseConfig)
 const db = getFirestore(fbApp)
@@ -15,6 +14,7 @@ const db = getFirestore(fbApp)
 const forumApp = createApp(App)
 forumApp.use(router)
 forumApp.use(store)
+forumApp.use(FontAwesome)
 
 const requireComponent = require.context(
   './components',
@@ -29,6 +29,7 @@ requireComponent.keys().forEach(function (fileName) {
     fileName.replace(/^.+\//, '').replace(/\.\w+$/, '')
   forumApp.component(baseComponentName, baseComponentConfig)
 })
+/* add font awesome icon component */
 
 forumApp.mount('#app')
 

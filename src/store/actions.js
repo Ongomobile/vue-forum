@@ -1,15 +1,30 @@
 // import firebase from 'firebase/compat'
 import db from '@/main'
 import * as firestore from 'firebase/firestore'
-import { findById } from '@/helpers'
+import { findById, docToResource } from '@/helpers'
 export default {
-  createPost({ commit, state }, post) {
-    post.id = 'qqqq' + Math.random()
+  async createPost({ commit, state }, post) {
     post.userId = state.authId
-    post.publishedAt = Math.floor(Date.now() / 1000)
-    commit('setItem', { resource: 'posts', item: post })
+    post.publishedAt = firestore.serverTimestamp()
+    const batch = firestore.writeBatch(db)
+    const postRef = firestore.doc(firestore.collection(db, 'posts'))
+    const userRef = firestore.doc(db, 'users', state.authId)
+    batch.set(postRef, post)
+    batch.update(firestore.doc(db, 'threads', post.threadId), {
+      posts: firestore.arrayUnion(postRef.id),
+      contributors: firestore.arrayUnion(state.authId)
+    })
+    batch.update(userRef, {
+      postsCount: firestore.increment(1)
+    })
+    await batch.commit()
+    const newPost = await firestore.getDoc(postRef)
+    commit('setItem', {
+      resource: 'posts',
+      item: { ...newPost.data(), id: newPost.id }
+    })
     commit('appendPostToThread', {
-      childId: post.id,
+      childId: newPost.id,
       parentId: post.threadId
     })
     commit('appendContributorToThread', {
@@ -19,25 +34,53 @@ export default {
   },
 
   async createThread({ commit, state, dispatch }, { text, title, forumId }) {
-    const id = 'qqqq' + Math.random()
     const userId = state.authId
-    const publishedAt = Math.floor(Date.now() / 1000)
-    const thread = { forumId, title, publishedAt, userId, id }
-    commit('setItem', { resource: 'threads', item: thread })
-    commit('appendThreadtoUser', { parentId: userId, childId: id })
-    commit('appendThreadtoForum', { parentId: forumId, childId: id })
-    dispatch('createPost', { text, threadId: id })
-    return findById(state.threads, id)
+    const publishedAt = firestore.serverTimestamp()
+    const threadRef = firestore.doc(firestore.collection(db, 'threads'))
+    const thread = { forumId, title, publishedAt, userId, id: threadRef.id }
+    const userRef = firestore.doc(db, 'users', userId)
+    const forumRef = firestore.doc(db, 'forums', forumId)
+    const batch = firestore.writeBatch(db)
+    batch.set(threadRef, thread)
+    batch.update(userRef, {
+      threads: firestore.arrayUnion(threadRef.id)
+    })
+    batch.update(forumRef, {
+      threads: firestore.arrayUnion(threadRef.id)
+    })
+
+    await batch.commit()
+    const newThread = await firestore.getDoc(threadRef)
+
+    commit('setItem', {
+      resource: 'threads',
+      item: { ...newThread.data(), id: newThread.id }
+    })
+    commit('appendThreadtoUser', { parentId: userId, childId: newThread.id })
+    commit('appendThreadtoForum', { parentId: forumId, childId: newThread.id })
+    await dispatch('createPost', { text, threadId: newThread.id })
+    return findById(state.threads, newThread.id)
   },
 
   async updateThread({ commit, state }, { title, text, id }) {
     const thread = findById(state.threads, id)
     const post = findById(state.posts, thread.posts[0])
-    const newThread = { ...thread, title }
-    const newPost = { ...post, text }
+    let newThread = { ...thread, title }
+    let newPost = { ...post, text }
+    const threadRef = firestore.doc(db, 'threads', id)
+    const postRef = firestore.doc(db, 'posts', post.id)
+    const batch = firestore.writeBatch(db)
+
+    batch.update(threadRef, newThread)
+    batch.update(postRef, newPost)
+    await batch.commit()
+
+    newThread = await firestore.getDoc(threadRef)
+    newPost = await firestore.getDoc(postRef)
+
     commit('setItem', { resource: 'threads', item: newThread })
     commit('setItem', { resource: 'posts', item: newPost })
-    return newThread
+    return docToResource(newThread)
   },
 
   updateUser({ commit }, user) {
@@ -99,7 +142,7 @@ export default {
       firestore.getDoc(docRef).then((docSnap) => {
         if (docSnap.exists()) {
           const item = { ...docSnap.data(), id: docSnap.id }
-          commit('setItem', { resource, id, item })
+          commit('setItem', { resource, item })
           resolve(item)
         }
       })
@@ -107,7 +150,6 @@ export default {
   },
 
   fetchItems({ dispatch }, { ids, resource, emoji }) {
-    console.log({ ids })
     return Promise.all(
       ids.map((id) => dispatch('fetchItem', { id, resource, emoji }))
     )
