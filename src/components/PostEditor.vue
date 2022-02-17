@@ -4,7 +4,7 @@
       <div class="form-group">
         <label for="thread_content">Reply:</label>
         <textarea
-          v-model="text"
+          v-model="postCopy.text"
           id="thread_content"
           class="form-input"
           name="content"
@@ -16,7 +16,7 @@
       <div class="btn-group">
         <button class="btn btn-ghost">Cancel</button>
         <button class="btn btn-blue" type="submit" name="Publish">
-          Publish
+          {{ post.id ? 'Update Post' : 'Submit Post' }}
         </button>
       </div>
     </form>
@@ -25,18 +25,18 @@
 
 <script>
 export default {
+  props: {
+    post: { type: Object, default: () => ({ text: null }) }
+  },
   data() {
     return {
-      text: ''
+      postCopy: { ...this.post }
     }
   },
   methods: {
     save() {
-      const post = {
-        text: this.text
-      }
-      this.$emit('save', { post })
-      this.text = ''
+      this.$emit('save', { post: this.postCopy })
+      this.postCopy.text = ''
     }
   }
 }

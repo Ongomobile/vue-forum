@@ -33,6 +33,20 @@ export default {
     })
   },
 
+  async updatePost({ commit, state }, { text, id }) {
+    const post = {
+      text,
+      edited: {
+        at: firestore.serverTimestamp(),
+        by: state.authId,
+        moderated: false
+      }
+    }
+    const postRef = firestore.doc(db, 'posts', id)
+    await firestore.updateDoc(postRef, post)
+    const updatedPost = await firestore.getDoc(postRef)
+    commit('setItem', { resource: 'posts', item: updatedPost })
+  },
   async createThread({ commit, state, dispatch }, { text, title, forumId }) {
     const userId = state.authId
     const publishedAt = firestore.serverTimestamp()
@@ -139,13 +153,12 @@ export default {
   fetchItem({ state, commit }, { id, emoji, resource }) {
     return new Promise((resolve) => {
       const docRef = firestore.doc(db, resource, id)
-      firestore.getDoc(docRef).then((docSnap) => {
-        if (docSnap.exists()) {
-          const item = { ...docSnap.data(), id: docSnap.id }
-          commit('setItem', { resource, item })
-          resolve(item)
-        }
+      const unsubscribe = firestore.onSnapshot(docRef, (doc) => {
+        const item = { ...doc.data(), id: doc.id }
+        commit('setItem', { resource, item })
+        resolve(item)
       })
+      commit('appendUnsubscribe', { unsubscribe })
     })
   },
 
@@ -153,5 +166,10 @@ export default {
     return Promise.all(
       ids.map((id) => dispatch('fetchItem', { id, resource, emoji }))
     )
+  },
+
+  async unsubscribeAllSnapshots({ state, commit }) {
+    state.unsubscribes.forEach((unsubscribe) => unsubscribe())
+    commit('clearAllUnsubscribes')
   }
 }

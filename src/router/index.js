@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-// import store from '@/store'
+import store from '@/store'
 // import { findById } from '@/helpers'
 import Home from '@/pages/Home.vue'
 import ThreadShow from '@/pages/ThreadShow'
@@ -83,7 +83,7 @@ const routes = [
   }
 ]
 
-export default createRouter({
+const router = createRouter({
   // This is how you name the active classs to style. The default class name is router-link-active
   linkActiveClass: 'active-link',
   history: createWebHistory(),
@@ -95,3 +95,8 @@ export default createRouter({
     return scroll
   }
 })
+router.beforeEach(() => {
+  store.dispatch('unsubscribeAllSnapshots')
+})
+
+export default router
