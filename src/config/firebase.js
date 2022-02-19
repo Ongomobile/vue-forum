@@ -1,9 +1,9 @@
 module.exports = {
-  apiKey: 'AIzaSyCdkLZWkyMEQjRbMh45CLQ296y0h2GZidw',
-  authDomain: 'nuxt-app-56196.firebaseapp.com',
-  databaseURL: 'https://nuxt-app-56196.firebaseio.com',
-  projectId: 'nuxt-app-56196',
-  storageBucket: 'nuxt-app-56196.appspot.com',
-  messagingSenderId: '363126933388',
-  appId: '1:363126933388:web:d454baf1e2b33d0a0638a9'
+  apiKey: process.env.VUE_APP_FIREBASE_API_KEY,
+  authDomain: process.env.VUE_APP_FIREBASE_AUTH_DOMAIN,
+  databaseURL: process.env.VUE_APP_FIREBASE_DATABASE_URL,
+  projectId: process.env.VUE_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.VUE_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.VUE_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.VUE_APP_FIREBASE_APP_ID
 }
