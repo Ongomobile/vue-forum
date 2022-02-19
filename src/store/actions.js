@@ -1,6 +1,8 @@
 // import firebase from 'firebase/compat'
 import db from '@/main'
 import * as firestore from 'firebase/firestore'
+import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth'
+
 import { findById, docToResource } from '@/helpers'
 export default {
   async createPost({ commit, state }, post) {
@@ -95,6 +97,36 @@ export default {
     commit('setItem', { resource: 'threads', item: newThread })
     commit('setItem', { resource: 'posts', item: newPost })
     return docToResource(newThread)
+  },
+
+  async registerUserWithEmailAndPassword(
+    { dispatch },
+    { avatar = null, email, name, username, password }
+  ) {
+    const auth = getAuth()
+    const result = await createUserWithEmailAndPassword(auth, email, password)
+
+    dispatch('createUser', {
+      id: result.user.uid,
+      email,
+      name,
+      username,
+      avatar
+    })
+  },
+
+  async createUser({ commit }, { id, email, name, username, avatar = null }) {
+    const registeredAt = firestore.serverTimestamp()
+    const usernameLower = username.toLowerCase()
+    email = email.toLowerCase()
+    const user = { avatar, email, name, username, usernameLower, registeredAt }
+    const userRef = firestore.doc(db, 'users', id)
+    await firestore.setDoc(userRef, user)
+
+    const newUser = await firestore.getDoc(userRef)
+
+    commit('setItem', { resource: 'users', item: newUser })
+    return docToResource(newUser)
   },
 
   updateUser({ commit }, user) {
