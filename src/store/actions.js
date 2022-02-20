@@ -4,7 +4,9 @@ import * as firestore from 'firebase/firestore'
 import {
   getAuth,
   createUserWithEmailAndPassword,
-  signInWithEmailAndPassword
+  signInWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup
 } from 'firebase/auth'
 
 import { findById, docToResource } from '@/helpers'
@@ -124,6 +126,27 @@ export default {
     console.log(email, password)
     const auth = getAuth()
     return signInWithEmailAndPassword(auth, email, password)
+  },
+  async signInWithGoogle({ dispatch }) {
+    try {
+      const auth = getAuth()
+      const provider = new GoogleAuthProvider()
+      const response = await signInWithPopup(auth, provider)
+      const user = response.user
+      const userDoc = firestore.doc(db, 'users', user.uid)
+
+      if (!userDoc.exists) {
+        return dispatch('createUser', {
+          id: user.uid,
+          name: user.displayName,
+          email: user.email,
+          username: user.email,
+          avatar: user.photoURL
+        })
+      }
+    } catch (error) {
+      alert(error.message)
+    }
   },
   async signOut({ commit }) {
     const auth = getAuth()
