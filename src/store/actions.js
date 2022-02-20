@@ -1,9 +1,14 @@
 // import firebase from 'firebase/compat'
 import db from '@/main'
 import * as firestore from 'firebase/firestore'
-import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth'
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword
+} from 'firebase/auth'
 
 import { findById, docToResource } from '@/helpers'
+
 export default {
   async createPost({ commit, state }, post) {
     post.userId = state.authId
@@ -106,7 +111,7 @@ export default {
     const auth = getAuth()
     const result = await createUserWithEmailAndPassword(auth, email, password)
 
-    dispatch('createUser', {
+    await dispatch('createUser', {
       id: result.user.uid,
       email,
       name,
@@ -115,6 +120,16 @@ export default {
     })
   },
 
+  signInWithEmailAndPassword(context, { email, password }) {
+    console.log(email, password)
+    const auth = getAuth()
+    return signInWithEmailAndPassword(auth, email, password)
+  },
+  async signOut({ commit }) {
+    const auth = getAuth()
+    await auth.signOut()
+    commit('setAuthId', null)
+  },
   async createUser({ commit }, { id, email, name, username, avatar = null }) {
     const registeredAt = firestore.serverTimestamp()
     const usernameLower = username.toLowerCase()
@@ -145,8 +160,19 @@ export default {
     dispatch('fetchItem', { emoji: '💬', resource: 'posts', id }),
   fetchUser: ({ dispatch }, { id }) =>
     dispatch('fetchItem', { emoji: '🙋', resource: 'users', id }),
-  fetchAuthUser: ({ dispatch, state }) =>
-    dispatch('fetchItem', { emoji: '🙋', resource: 'users', id: state.authId }),
+  fetchAuthUser: ({ dispatch, state, commit }) => {
+    const auth = getAuth()
+    const userId = auth.currentUser?.uid
+    if (!userId) return
+
+    dispatch('fetchItem', {
+      emoji: '🙋',
+      resource: 'users',
+      id: userId
+    })
+
+    commit('setAuthId', userId)
+  },
 
   // ---------------------------------------
   // Fetch All of a Resource
