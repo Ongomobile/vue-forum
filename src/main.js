@@ -12,8 +12,9 @@ import FontAwesome from '@/plugins/FontAwesome'
 const fbApp = initializeApp(firebaseConfig)
 const db = getFirestore(fbApp)
 const auth = getAuth()
+
 auth.onAuthStateChanged((user) => {
-  console.log({ user })
+  store.dispatch('unsubscribeAuthUserSnapshot')
   if (user) {
     store.dispatch('fetchAuthUser')
   }

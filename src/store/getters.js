@@ -43,6 +43,7 @@ export default {
           return thread.posts.length - 1
         },
         get contributorsCount() {
+          if (!thread.contributors) return 0
           return thread.contributors.length
         }
       }

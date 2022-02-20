@@ -36,7 +36,7 @@
 
       <div class="push-top text-center">
         <button @click="signInWithGoogle" class="btn-red btn-xsmall">
-          <i class="fa fa-google fa-btn"></i>Sign in with Google
+          <fa :icon="['fab', 'google']" /> Sign in with Google
         </button>
       </div>
     </div>
