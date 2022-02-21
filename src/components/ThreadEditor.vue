@@ -54,7 +54,23 @@ export default {
   },
   methods: {
     save() {
+      this.$emit('clean')
       this.$emit('save', { ...this.form })
+    }
+  },
+  watch: {
+    form: {
+      handler() {
+        // This line checks if anything other than passed props
+        if (this.form.title !== this.title || this.form.text !== this.text) {
+          // dirty indicates a form has un saved changes
+          this.$emit('dirty')
+        } else {
+          // this checks to see if form has no unsaved changes
+          this.$emit('clean')
+        }
+      },
+      deep: true
     }
   }
 }

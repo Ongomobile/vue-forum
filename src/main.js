@@ -4,21 +4,12 @@ import router from '@/router'
 import store from '@/store'
 import { initializeApp } from 'firebase/app'
 import { getFirestore } from 'firebase/firestore'
-// import firebase from 'firebase/app'
 import firebaseConfig from '@/config/firebase'
-import { getAuth } from 'firebase/auth'
 import FontAwesome from '@/plugins/FontAwesome'
-// firebase.initializeApp(firebaseConfig)
+
 const fbApp = initializeApp(firebaseConfig)
 const db = getFirestore(fbApp)
-const auth = getAuth()
 
-auth.onAuthStateChanged((user) => {
-  store.dispatch('unsubscribeAuthUserSnapshot')
-  if (user) {
-    store.dispatch('fetchAuthUser')
-  }
-})
 const forumApp = createApp(App)
 forumApp.use(router)
 forumApp.use(store)

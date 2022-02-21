@@ -12,6 +12,23 @@ import {
 import { findById, docToResource } from '@/helpers'
 
 export default {
+  initAuthentication({ dispatch, commit, state }) {
+    if (state.authObserverUnsubscribe) return
+    return new Promise((resolve) => {
+      const auth = getAuth()
+      const unsubscribe = auth.onAuthStateChanged(async (user) => {
+        console.log('👣 the user has changed')
+        this.dispatch('unsubscribeAuthUserSnapshot')
+        if (user) {
+          await this.dispatch('fetchAuthUser')
+          resolve(user)
+        } else {
+          resolve(null)
+        }
+      })
+      commit('setAuthObserverUnsubscribe', unsubscribe)
+    })
+  },
   async createPost({ commit, state }, post) {
     post.userId = state.authId
     post.publishedAt = firestore.serverTimestamp()
@@ -183,12 +200,12 @@ export default {
     dispatch('fetchItem', { emoji: '💬', resource: 'posts', id }),
   fetchUser: ({ dispatch }, { id }) =>
     dispatch('fetchItem', { emoji: '🙋', resource: 'users', id }),
-  fetchAuthUser: ({ dispatch, state, commit }) => {
+  fetchAuthUser: async ({ dispatch, state, commit }) => {
     const auth = getAuth()
     const userId = auth.currentUser?.uid
     if (!userId) return
 
-    dispatch('fetchItem', {
+    await dispatch('fetchItem', {
       emoji: '🙋',
       resource: 'users',
       id: userId,
