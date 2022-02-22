@@ -13,7 +13,7 @@ import { findById, docToResource } from '@/helpers'
 
 export default {
   initAuthentication({ dispatch, commit, state }) {
-    if (state.authObserverUnsubscribe) return
+    if (state.authObserverUnsubscribe) state.authObserverUnsubscribe()
     return new Promise((resolve) => {
       const auth = getAuth()
       const unsubscribe = auth.onAuthStateChanged(async (user) => {
@@ -258,9 +258,13 @@ export default {
     return new Promise((resolve) => {
       const docRef = firestore.doc(db, resource, id)
       const unsubscribe = firestore.onSnapshot(docRef, (doc) => {
-        const item = { ...doc.data(), id: doc.id }
-        commit('setItem', { resource, item })
-        resolve(item)
+        if (doc.exists()) {
+          const item = { ...doc.data(), id: doc.id }
+          commit('setItem', { resource, item })
+          resolve(item)
+        } else {
+          resolve(null)
+        }
       })
       if (handleUnsubscribe) {
         handleUnsubscribe(unsubscribe)

@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import store from '@/store'
-// import { findById } from '@/helpers'
+import { findById } from '@/helpers'
 import Home from '@/pages/Home.vue'
 import ThreadShow from '@/pages/ThreadShow'
 import ThreadCreate from '@/pages/ThreadCreate'
@@ -28,7 +28,8 @@ const routes = [
     path: '/me/edit',
     name: 'ProfileEdit',
     component: Profile,
-    props: { edit: true }
+    props: { edit: true },
+    meta: { requiresAuth: true }
   },
   {
     path: '/category/:id',
@@ -46,37 +47,40 @@ const routes = [
     path: '/thread/:id',
     name: 'ThreadShow',
     component: ThreadShow,
-    props: true
+    props: true,
     // Route guard
-    // beforeEnter(to, from, next) {
-    //   // Check if thread exists
-    //   const threadExists = findById(store.threads, to.params.id)
-    //   // If exist continue
-    //   if (threadExists) {
-    //     return next()
-    //   } else {
-    //     next({
-    //       name: 'NotFound',
-    //       params: { pathMatch: to.path.split('/').slice(1) },
-    //       // Preserve query & existing hash
-    //       query: to.query,
-    //       hash: to.hash
-    //     })
-    //   }
-    //   // Else redirect to not found page
-    // }
+    async beforeEnter(to, from, next) {
+      await store.dispatch('fetchThread', { id: to.params.id })
+      // check if thread exists
+      const threadExists = findById(store.state.threads, to.params.id)
+      // if exists continue
+      if (threadExists) {
+        return next()
+      } else {
+        next({
+          name: 'NotFound',
+          params: { pathMatch: to.path.substring(1).split('/') },
+          // preserve existing query and hash
+          query: to.query,
+          hash: to.hash
+        })
+      }
+      // if doesnt exist redirect to not found
+    }
   },
   {
     path: '/forum/:forumId/thread/create',
     name: 'ThreadCreate',
     component: ThreadCreate,
-    props: true
+    props: true,
+    meta: { requiresAuth: true }
   },
   {
     path: '/thread/:id/edit',
     name: 'ThreadEdit',
     component: ThreadEdit,
-    props: true
+    props: true,
+    meta: { requiresAuth: true }
   },
   {
     path: '/register',
@@ -115,6 +119,7 @@ const router = createRouter({
     return scroll
   }
 })
+// Global navigation guard we wait for async data to resolve
 router.beforeEach(async (to, from) => {
   await store.dispatch('initAuthentication')
   console.log(`🚦 navigating to ${to.name} from ${from.name}`)
