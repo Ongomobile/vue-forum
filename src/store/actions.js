@@ -216,6 +216,17 @@ export default {
 
     commit('setAuthId', userId)
   },
+  async fetchAuthUsersPosts({ commit, state }) {
+    const posts = firestore.query(
+      firestore.collection(db, 'posts'),
+      firestore.where('userId', '==', state.authId)
+    )
+
+    const querySnapshot = await firestore.getDocs(posts)
+    querySnapshot.forEach((item) => {
+      commit('setItem', { resource: 'posts', item })
+    })
+  },
 
   // ---------------------------------------
   // Fetch All of a Resource
