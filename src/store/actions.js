@@ -1,6 +1,19 @@
-// import firebase from 'firebase/compat'
 import db from '@/main'
-import * as firestore from 'firebase/firestore'
+import {
+  arrayUnion,
+  serverTimestamp,
+  writeBatch,
+  doc,
+  collection,
+  increment,
+  getDoc,
+  getDocs,
+  updateDoc,
+  setDoc,
+  query,
+  where,
+  onSnapshot
+} from 'firebase/firestore'
 import {
   getAuth,
   createUserWithEmailAndPassword,
@@ -31,20 +44,20 @@ export default {
   },
   async createPost({ commit, state }, post) {
     post.userId = state.authId
-    post.publishedAt = firestore.serverTimestamp()
-    const batch = firestore.writeBatch(db)
-    const postRef = firestore.doc(firestore.collection(db, 'posts'))
-    const userRef = firestore.doc(db, 'users', state.authId)
+    post.publishedAt = serverTimestamp()
+    const batch = writeBatch(db)
+    const postRef = doc(collection(db, 'posts'))
+    const userRef = doc(db, 'users', state.authId)
     batch.set(postRef, post)
-    batch.update(firestore.doc(db, 'threads', post.threadId), {
-      posts: firestore.arrayUnion(postRef.id),
-      contributors: firestore.arrayUnion(state.authId)
+    batch.update(doc(db, 'threads', post.threadId), {
+      posts: arrayUnion(postRef.id),
+      contributors: arrayUnion(state.authId)
     })
     batch.update(userRef, {
-      postsCount: firestore.increment(1)
+      postsCount: increment(1)
     })
     await batch.commit()
-    const newPost = await firestore.getDoc(postRef)
+    const newPost = await getDoc(postRef)
     commit('setItem', {
       resource: 'posts',
       item: { ...newPost.data(), id: newPost.id }
@@ -63,34 +76,34 @@ export default {
     const post = {
       text,
       edited: {
-        at: firestore.serverTimestamp(),
+        at: serverTimestamp(),
         by: state.authId,
         moderated: false
       }
     }
-    const postRef = firestore.doc(db, 'posts', id)
-    await firestore.updateDoc(postRef, post)
-    const updatedPost = await firestore.getDoc(postRef)
+    const postRef = doc(db, 'posts', id)
+    await updateDoc(postRef, post)
+    const updatedPost = await getDoc(postRef)
     commit('setItem', { resource: 'posts', item: updatedPost })
   },
   async createThread({ commit, state, dispatch }, { text, title, forumId }) {
     const userId = state.authId
-    const publishedAt = firestore.serverTimestamp()
-    const threadRef = firestore.doc(firestore.collection(db, 'threads'))
+    const publishedAt = serverTimestamp()
+    const threadRef = doc(collection(db, 'threads'))
     const thread = { forumId, title, publishedAt, userId, id: threadRef.id }
-    const userRef = firestore.doc(db, 'users', userId)
-    const forumRef = firestore.doc(db, 'forums', forumId)
-    const batch = firestore.writeBatch(db)
+    const userRef = doc(db, 'users', userId)
+    const forumRef = doc(db, 'forums', forumId)
+    const batch = writeBatch(db)
     batch.set(threadRef, thread)
     batch.update(userRef, {
-      threads: firestore.arrayUnion(threadRef.id)
+      threads: arrayUnion(threadRef.id)
     })
     batch.update(forumRef, {
-      threads: firestore.arrayUnion(threadRef.id)
+      threads: arrayUnion(threadRef.id)
     })
 
     await batch.commit()
-    const newThread = await firestore.getDoc(threadRef)
+    const newThread = await getDoc(threadRef)
 
     commit('setItem', {
       resource: 'threads',
@@ -107,16 +120,16 @@ export default {
     const post = findById(state.posts, thread.posts[0])
     let newThread = { ...thread, title }
     let newPost = { ...post, text }
-    const threadRef = firestore.doc(db, 'threads', id)
-    const postRef = firestore.doc(db, 'posts', post.id)
-    const batch = firestore.writeBatch(db)
+    const threadRef = doc(db, 'threads', id)
+    const postRef = doc(db, 'posts', post.id)
+    const batch = writeBatch(db)
 
     batch.update(threadRef, newThread)
     batch.update(postRef, newPost)
     await batch.commit()
 
-    newThread = await firestore.getDoc(threadRef)
-    newPost = await firestore.getDoc(postRef)
+    newThread = await getDoc(threadRef)
+    newPost = await getDoc(postRef)
 
     commit('setItem', { resource: 'threads', item: newThread })
     commit('setItem', { resource: 'posts', item: newPost })
@@ -150,7 +163,7 @@ export default {
       const provider = new GoogleAuthProvider()
       const response = await signInWithPopup(auth, provider)
       const user = response.user
-      const userDoc = firestore.doc(db, 'users', user.uid)
+      const userDoc = doc(db, 'users', user.uid)
 
       if (!userDoc.exists) {
         return dispatch('createUser', {
@@ -171,20 +184,32 @@ export default {
     commit('setAuthId', null)
   },
   async createUser({ commit }, { id, email, name, username, avatar = null }) {
-    const registeredAt = firestore.serverTimestamp()
+    const registeredAt = serverTimestamp()
     const usernameLower = username.toLowerCase()
     email = email.toLowerCase()
     const user = { avatar, email, name, username, usernameLower, registeredAt }
-    const userRef = firestore.doc(db, 'users', id)
-    await firestore.setDoc(userRef, user)
+    const userRef = doc(db, 'users', id)
+    await setDoc(userRef, user)
 
-    const newUser = await firestore.getDoc(userRef)
+    const newUser = await getDoc(userRef)
 
     commit('setItem', { resource: 'users', item: newUser })
     return docToResource(newUser)
   },
 
-  updateUser({ commit }, user) {
+  async updateUser({ commit }, user) {
+    const updates = {
+      avatar: user.avatar || null,
+      username: user.username || null,
+      name: user.name || null,
+      bio: user.bio || null,
+      website: user.website || null,
+      email: user.email || null,
+      location: user.location || null
+    }
+    const userRef = doc(db, 'users', user.id)
+
+    await updateDoc(userRef, updates)
     commit('setItem', { resource: 'users', item: user })
   },
   // ---------------------------------------
@@ -217,12 +242,12 @@ export default {
     commit('setAuthId', userId)
   },
   async fetchAuthUsersPosts({ commit, state }) {
-    const posts = firestore.query(
-      firestore.collection(db, 'posts'),
-      firestore.where('userId', '==', state.authId)
+    const posts = query(
+      collection(db, 'posts'),
+      where('userId', '==', state.authId)
     )
 
-    const querySnapshot = await firestore.getDocs(posts)
+    const querySnapshot = await getDocs(posts)
     querySnapshot.forEach((item) => {
       commit('setItem', { resource: 'posts', item })
     })
@@ -235,16 +260,14 @@ export default {
   fetchAllCategories({ commit }) {
     console.log('🔥', '🏷', 'all')
     return new Promise((resolve) => {
-      firestore
-        .getDocs(firestore.collection(db, 'categories'))
-        .then((querySnapshot) => {
-          const categories = querySnapshot.docs.map((doc) => {
-            const item = { id: doc.id, ...doc.data() }
-            commit('setItem', { resource: 'categories', item })
-            return item
-          })
-          resolve(categories)
+      getDocs(collection(db, 'categories')).then((querySnapshot) => {
+        const categories = querySnapshot.docs.map((doc) => {
+          const item = { id: doc.id, ...doc.data() }
+          commit('setItem', { resource: 'categories', item })
+          return item
         })
+        resolve(categories)
+      })
     })
   },
 
@@ -267,8 +290,8 @@ export default {
     { id, emoji, resource, handleUnsubscribe = null }
   ) {
     return new Promise((resolve) => {
-      const docRef = firestore.doc(db, resource, id)
-      const unsubscribe = firestore.onSnapshot(docRef, (doc) => {
+      const docRef = doc(db, resource, id)
+      const unsubscribe = onSnapshot(docRef, (doc) => {
         if (doc.exists()) {
           const item = { ...doc.data(), id: doc.id }
           commit('setItem', { resource, item })

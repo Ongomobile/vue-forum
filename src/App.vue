@@ -1,7 +1,10 @@
 <template>
   <TheNavbar />
+
   <div class="container">
-    <router-view v-show="showPage" @ready="onPageReady" />
+    <!-- The key property is unique and destroys component when navigated away & creates a new one  -->
+    <!-- There is a simple way to tell the router-view, or any component, to update. Just bind the component key property to a reactive data source.  -->
+    <router-view v-show="showPage" @ready="onPageReady" :key="$route.path" />
     <AppSpinner v-show="!showPage" />
   </div>
 </template>
