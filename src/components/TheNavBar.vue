@@ -1,10 +1,14 @@
 <template>
-  <header class="header" id="header">
+  <header
+    class="header"
+    id="header"
+    v-click-outside="() => (mobileNavMenu = false)"
+  >
     <router-link :to="{ name: 'Home' }" class="logo">
       <img src="../assets/svg/vueschool-logo.svg" />
     </router-link>
 
-    <div class="btn-hamburger">
+    <div class="btn-hamburger" @click="mobileNavMenu = !mobileNavMenu">
       <!-- use .btn-humburger-active to open the menu -->
       <div class="top bar"></div>
       <div class="middle bar"></div>
@@ -12,7 +16,7 @@
     </div>
 
     <!-- use .navbar-open to open nav -->
-    <nav class="navbar">
+    <nav class="navbar" :class="{ 'navbar-open': mobileNavMenu }">
       <ul>
         <li v-if="authUser" class="navbar-user">
           <a
@@ -45,7 +49,14 @@
                 >
               </li>
               <li class="dropdown-menu-item">
-                <a @click.prevent="$store.dispatch('auth/signOut')">Sign Out</a>
+                <a
+                  @click.prevent="
+                    $store.dispatch('auth/signOut'),
+                      $router.push({ name: 'Home' })
+                  "
+                >
+                  Sign Out
+                </a>
               </li>
             </ul>
           </div>
@@ -56,6 +67,18 @@
         </li>
         <li v-if="!authUser" class="navbar-item">
           <router-link :to="{ name: 'Register' }">Register</router-link>
+        </li>
+        <li v-if="authUser" class="navbar-mobile-item">
+          <router-link :to="{ name: 'Profile' }">View Profile</router-link>
+        </li>
+        <li v-if="authUser" class="navbar-mobile-item">
+          <a
+            @click.prevent="
+              $store.dispatch('auth/signOut'), $router.push({ name: 'Home' })
+            "
+          >
+            Sign Out</a
+          >
         </li>
       </ul>
 
@@ -89,11 +112,17 @@ import { mapGetters } from 'vuex'
 export default {
   data() {
     return {
-      userDropdownOpen: false
+      userDropdownOpen: false,
+      mobileNavMenu: false
     }
   },
   computed: {
     ...mapGetters('auth', ['authUser'])
+  },
+  created() {
+    this.$router.beforeEach((to, from) => {
+      this.mobileNavMenu = false
+    })
   }
 }
 </script>
