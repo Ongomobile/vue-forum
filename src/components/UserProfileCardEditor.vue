@@ -101,7 +101,7 @@ export default {
   methods: {
     save() {
       // We need to clone user object using spread operator so our changes only affect the current change and not the previous state
-      this.$store.dispatch('updateUser', { ...this.activeUser })
+      this.$store.dispatch('users/updateUser', { ...this.activeUser })
       this.$router.push({ name: 'Profile' })
     },
     cancel() {

@@ -20,3 +20,20 @@ export const docToResource = (doc) => {
 
   return { ...doc.data(), id: doc.id }
 }
+
+// Higher order function for mutations must be a regular function because of scope functions are hoisted
+export const makeAppendChildToParentMutation = ({ parent, child }) => {
+  return (state, { childId, parentId }) => {
+    const resource = findById(state.items, parentId)
+    if (!resource) {
+      console.warn(
+        `Appending ${child} ${childId} to ${parent} ${parentId} failed because the parent didn't exist`
+      )
+      return
+    }
+    resource[child] = resource[child] || []
+    if (!resource[child].includes(childId)) {
+      resource[child].push(childId)
+    }
+  }
+}
