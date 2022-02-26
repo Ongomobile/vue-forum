@@ -137,6 +137,8 @@ export default {
         limit(10)
       )
       if (lastPost) {
+        // lastPost is null if page refreshed but logs when first rendered when you navigate here.
+        console.log({ lastPost })
         // Not sure to do in here do I need to start a new query or call postsQuery with startAfter
         const postDoc = doc(db, 'posts', lastPost.id)
         console.log({ postDoc })
