@@ -1,5 +1,14 @@
 import db from '@/main'
-import { doc, collection, getDocs, query, where } from 'firebase/firestore'
+import {
+  doc,
+  collection,
+  getDocs,
+  query,
+  where,
+  orderBy,
+  limit,
+  startAfter
+} from 'firebase/firestore'
 import {
   getAuth,
   createUserWithEmailAndPassword,
@@ -7,6 +16,7 @@ import {
   GoogleAuthProvider,
   signInWithPopup
 } from 'firebase/auth'
+import { startCase } from 'lodash'
 
 export default {
   namespaced: true,
@@ -115,13 +125,34 @@ export default {
 
       commit('setAuthId', userId)
     },
-    async fetchAuthUsersPosts({ commit, state }) {
-      const posts = query(
-        collection(db, 'posts'),
-        where('userId', '==', state.authId)
-      )
+    async fetchAuthUsersPosts({ commit, state }, { startAfter }) {
+      // Docs I have looked at
+      //  https:firebase.google.com/docs/firestore/query-data/query-cursors
 
-      const querySnapshot = await getDocs(posts)
+      // This gets 1st 10 posts
+
+      const postsQuery = query(
+        collection(db, 'posts'),
+        where('userId', '==', state.authId),
+        orderBy('publishedAt', 'desc'),
+        limit(10)
+      )
+      if (startAfter) {
+        // Not sure to do in here do I need to start a new query or call postsQuery with startAfter
+        const postDoc = doc(db, 'posts', startAfter.id)
+        console.log({ postDoc })
+        const next = query(
+          collection(db, 'cities'),
+          orderBy('publishedAt', 'desc'),
+          where('userId', '==', state.authId),
+          startAfter(startAfter),
+          limit(25)
+        )
+        const nextDocumentSnapshots = await getDocs(next)
+        console.log({ nextDocumentSnapshots })
+      }
+      // I am not doing anything here with startAfter posts not sure what to do?
+      const querySnapshot = await getDocs(postsQuery)
       querySnapshot.forEach((item) => {
         commit('setItem', { resource: 'posts', item }, { root: true })
       })
