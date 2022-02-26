@@ -16,7 +16,6 @@ import {
   GoogleAuthProvider,
   signInWithPopup
 } from 'firebase/auth'
-import { startCase } from 'lodash'
 
 export default {
   namespaced: true,
@@ -125,7 +124,7 @@ export default {
 
       commit('setAuthId', userId)
     },
-    async fetchAuthUsersPosts({ commit, state }, { startAfter }) {
+    async fetchAuthUsersPosts({ commit, state }, { lastPost }) {
       // Docs I have looked at
       //  https:firebase.google.com/docs/firestore/query-data/query-cursors
 
@@ -137,15 +136,15 @@ export default {
         orderBy('publishedAt', 'desc'),
         limit(10)
       )
-      if (startAfter) {
+      if (lastPost) {
         // Not sure to do in here do I need to start a new query or call postsQuery with startAfter
-        const postDoc = doc(db, 'posts', startAfter.id)
+        const postDoc = doc(db, 'posts', lastPost.id)
         console.log({ postDoc })
         const next = query(
           collection(db, 'cities'),
           orderBy('publishedAt', 'desc'),
           where('userId', '==', state.authId),
-          startAfter(startAfter),
+          startAfter(lastPost),
           limit(25)
         )
         const nextDocumentSnapshots = await getDocs(next)

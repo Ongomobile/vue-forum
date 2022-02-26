@@ -42,7 +42,7 @@ export default {
   },
   async created() {
     await this.$store.dispatch('auth/fetchAuthUsersPosts', {
-      startAfter: this.lastPostFetched
+      lastPost: this.lastPostFetched
     })
     this.asyncDataStatus_fetched()
   }
