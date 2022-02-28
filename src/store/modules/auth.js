@@ -3,6 +3,7 @@ import {
   doc,
   collection,
   getDocs,
+  getDoc,
   query,
   where,
   orderBy,
@@ -128,30 +129,21 @@ export default {
       // Docs I have looked at
       //  https:firebase.google.com/docs/firestore/query-data/query-cursors
 
-      // This gets 1st 10 posts
-
-      const postsQuery = query(
+      // Because firebase 9 creates the query via the query() function
+      // let's collection all the args here first
+      // and then filter out any null values (ie. the startAfter if lastPost is null)
+      const queryArgs = [
         collection(db, 'posts'),
         where('userId', '==', state.authId),
         orderBy('publishedAt', 'desc'),
+        lastPost ? startAfter(await getDoc(doc(db, 'posts', lastPost.id))) : null,
         limit(10)
+      ].filter(param => param !== null)
+
+      // then we can spread the args into the query function (with startAfter set appropriately based on the value of lastPost)
+      const postsQuery = query(
+        ...queryArgs
       )
-      if (lastPost) {
-        // lastPost is null if page refreshed but logs when first rendered when you navigate here.
-        console.log({ lastPost })
-        // Not sure to do in here do I need to start a new query or call postsQuery with startAfter
-        const postDoc = doc(db, 'posts', lastPost.id)
-        console.log({ postDoc })
-        const next = query(
-          collection(db, 'cities'),
-          orderBy('publishedAt', 'desc'),
-          where('userId', '==', state.authId),
-          startAfter(lastPost),
-          limit(25)
-        )
-        const nextDocumentSnapshots = await getDocs(next)
-        console.log({ nextDocumentSnapshots })
-      }
       // I am not doing anything here with startAfter posts not sure what to do?
       const querySnapshot = await getDocs(postsQuery)
       querySnapshot.forEach((item) => {
