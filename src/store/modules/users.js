@@ -10,7 +10,9 @@ import {
 import {
   docToResource,
   makeAppendChildToParentMutation,
-  findById
+  findById,
+  makeFetchItemAction,
+  makeFetchItemsAction
 } from '@/helpers'
 
 export default {
@@ -89,19 +91,8 @@ export default {
       commit('setItem', { resource: 'users', item: user }, { root: true })
     },
 
-    fetchUser: ({ dispatch }, { id }) =>
-      dispatch(
-        'fetchItem',
-        { emoji: '🙋', resource: 'users', id },
-        { root: true }
-      ),
-
-    fetchUsers: ({ dispatch }, { ids }) =>
-      dispatch(
-        'fetchItems',
-        { resource: 'users', ids, emoji: '🙋' },
-        { root: true }
-      )
+    fetchUser: makeFetchItemAction({ emoji: '🙋', resource: 'users' }),
+    fetchUsers: makeFetchItemsAction({ resource: 'users', emoji: '🙋' })
   },
 
   mutations: {

@@ -1,6 +1,6 @@
 import db from '@/main'
 import { collection, getDocs } from 'firebase/firestore'
-
+import { makeFetchItemAction, makeFetchItemsAction } from '@/helpers'
 export default {
   namespaced: true,
   state: {
@@ -10,19 +10,11 @@ export default {
   getters: {},
 
   actions: {
-    fetchCategory: ({ dispatch }, { id }) =>
-      dispatch(
-        'fetchItem',
-        { emoji: '🏷', resource: 'categories', id },
-        { root: true }
-      ),
-
-    fetchCategories: ({ dispatch }, { ids }) =>
-      dispatch(
-        'fetchItems',
-        { resource: 'categories', ids, emoji: '🏷' },
-        { root: true }
-      ),
+    fetchCategory: makeFetchItemAction({ emoji: '🏷', resource: 'categories' }),
+    fetchCategories: makeFetchItemsAction({
+      emoji: '🏷',
+      resource: 'categories'
+    }),
 
     fetchAllCategories({ commit }) {
       console.log('🔥', '🏷', 'all')

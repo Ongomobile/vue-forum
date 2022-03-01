@@ -1,7 +1,9 @@
 import {
   findById,
   docToResource,
-  makeAppendChildToParentMutation
+  makeAppendChildToParentMutation,
+  makeFetchItemAction,
+  makeFetchItemsAction
 } from '@/helpers'
 
 import db from '@/main'
@@ -120,20 +122,9 @@ export default {
       commit('setItem', { resource: 'posts', item: newPost }, { root: true })
       return docToResource(newThread)
     },
+    fetchThread: makeFetchItemAction({ emoji: '📄', resource: 'threads' }),
+    fetchThreads: makeFetchItemsAction({ emoji: '📄', resource: 'threads' }),
 
-    fetchThread: ({ dispatch }, { id }) =>
-      dispatch(
-        'fetchItem',
-        { emoji: '📄', resource: 'threads', id },
-        { root: true }
-      ),
-
-    fetchThreads: ({ dispatch }, { ids }) =>
-      dispatch(
-        'fetchItems',
-        { resource: 'threads', ids, emoji: '📄' },
-        { root: true }
-      ),
     fetchThreadsByPage: ({ dispatch, commit }, { ids, page, perPage = 10 }) => {
       commit('clearThreads')
       // Lodash chunk docs https://lodash.com/docs/4.17.15#chunk

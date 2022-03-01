@@ -21,7 +21,6 @@ export const docToResource = (doc) => {
   return { ...doc.data(), id: doc.id }
 }
 
-// Higher order function for mutations must be a regular function because of scope functions are hoisted
 export const makeAppendChildToParentMutation = ({ parent, child }) => {
   return (state, { childId, parentId }) => {
     const resource = findById(state.items, parentId)
@@ -36,4 +35,15 @@ export const makeAppendChildToParentMutation = ({ parent, child }) => {
       resource[child].push(childId)
     }
   }
+}
+// Higher order function to make dispatch fetchItem & fetchItems
+export const makeFetchItemAction = ({ emoji, resource }) => {
+  // By writing payload and spreading ...payload instead of destructing values we can send any options
+  // before the payload looked like this { id, once = false}
+  return ({ dispatch }, payload) =>
+    dispatch('fetchItem', { emoji, resource, ...payload }, { root: true })
+}
+export const makeFetchItemsAction = ({ emoji, resource }) => {
+  return ({ dispatch }, payload) =>
+    dispatch('fetchItems', { emoji, resource, ...payload }, { root: true })
 }
