@@ -45,11 +45,6 @@ export default {
       lastPost: this.lastPostFetched
     })
 
-    // testing that page 2 works here as in the video
-    setTimeout(() => {
-      this.$store.dispatch('auth/fetchAuthUsersPosts', { lastPost: this.lastPostFetched })
-    }, 2000)
-
     this.asyncDataStatus_fetched()
   }
 }

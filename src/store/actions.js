@@ -26,6 +26,7 @@ export default {
   },
 
   fetchItems({ dispatch }, { ids, resource, emoji }) {
+    ids = ids || []
     return Promise.all(
       ids.map((id) => dispatch('fetchItem', { id, resource, emoji }))
     )
@@ -34,5 +35,9 @@ export default {
   async unsubscribeAllSnapshots({ state, commit }) {
     state.unsubscribes.forEach((unsubscribe) => unsubscribe())
     commit('clearAllUnsubscribes')
+  },
+
+  clearItems({ commit }, { modules = [] }) {
+    commit('clearItems', { modules })
   }
 }

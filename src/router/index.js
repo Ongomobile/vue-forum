@@ -121,6 +121,12 @@ const router = createRouter({
     return scroll
   }
 })
+
+router.afterEach(() => {
+  store.dispatch('clearItems', {
+    modules: ['categories', 'forums', 'posts', 'threads']
+  })
+})
 // Global navigation guard we wait for async data to resolve
 router.beforeEach(async (to, from) => {
   await store.dispatch('auth/initAuthentication')

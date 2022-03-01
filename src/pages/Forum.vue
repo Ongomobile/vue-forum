@@ -42,10 +42,18 @@ export default {
     },
     threads() {
       if (!this.forum) return []
-      return this.forum.threads.map((threadId) =>
-        this.$store.getters['threads/thread'](threadId)
-      )
+      return this.$store.state.threads.items
+        .filter((thread) => thread.forumId === this.forum.id)
+        .map((thread) => this.$store.getters['threads/thread'](thread.id))
+    },
+    threadCount() {
+      return this.forum.threads?.length || 0
     }
+    // ,
+    // totalPages() {
+    //   if (!this.threadCount) return 0
+    //   return Math.ceil(this.threadCount / this.perPage)
+    // }
   },
   methods: {
     ...mapActions('forums', ['fetchForum']),

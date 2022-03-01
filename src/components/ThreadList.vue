@@ -2,41 +2,45 @@
   <div class="col-full">
     <div class="thread-list">
       <h2 class="list-title">Threads</h2>
-
-      <div v-for="thread in threads" :key="thread.id" class="thread">
-        <div>
-          <p>
-            <router-link
-              v-if="thread.id"
-              :to="{ name: 'ThreadShow', params: { id: thread.id } }"
-              >{{ thread.title }}</router-link
-            >
-          </p>
-          <p class="text-faded text-xsmall">
-            By <a href="#">{{ userById(thread.userId).name }}</a
-            >, <AppDate :timestamp="thread.publishedAt" />.
-          </p>
-        </div>
-
-        <div class="activity">
-          <p class="replies-count">{{ thread.repliesCount }} replies</p>
-
-          <img
-            class="avatar-medium"
-            :src="userById(thread.userId).avatar"
-            :alt="userById(thread.userId).name"
-          />
-
+      <div v-if="threads.length">
+        <div v-for="thread in threads" :key="thread.id" class="thread">
           <div>
-            <p class="text-xsmall">
-              <a href="#">{{ userById(thread.userId).name }}</a>
+            <p>
+              <router-link
+                v-if="thread.id"
+                :to="{ name: 'ThreadShow', params: { id: thread.id } }"
+                >{{ thread.title }}</router-link
+              >
             </p>
-            <p class="text-xsmall text-faded">
-              <AppDate :timestamp="thread.publishedAt" />
+            <p class="text-faded text-xsmall">
+              By <a href="#">{{ userById(thread.userId).name }}</a
+              >, <AppDate :timestamp="thread.publishedAt" />.
             </p>
+          </div>
+
+          <div class="activity">
+            <p class="replies-count">{{ thread.repliesCount }} replies</p>
+
+            <img
+              class="avatar-medium"
+              :src="userById(thread.userId).avatar"
+              :alt="userById(thread.userId).name"
+            />
+
+            <div>
+              <p class="text-xsmall">
+                <a href="#">{{ userById(thread.userId).name }}</a>
+              </p>
+              <p class="text-xsmall text-faded">
+                <AppDate :timestamp="thread.publishedAt" />
+              </p>
+            </div>
           </div>
         </div>
       </div>
+    </div>
+    <div v-if="!threads.lenght" style="padding: 10px; text-align: center">
+      <em>No Threads Available</em>
     </div>
   </div>
 </template>
