@@ -13,6 +13,7 @@ import {
   collection,
   getDoc
 } from 'firebase/firestore'
+import chunk from 'lodash/chunk'
 
 export default {
   namespaced: true,
@@ -132,7 +133,16 @@ export default {
         'fetchItems',
         { resource: 'threads', ids, emoji: '📄' },
         { root: true }
-      )
+      ),
+    fetchThreadsByPage: ({ dispatch, commit }, { ids, page, perPage = 10 }) => {
+      commit('clearThreads')
+      // Lodash chunk docs https://lodash.com/docs/4.17.15#chunk
+      // This breaks id's (THREADS) into chunks
+      const chunks = chunk(ids, perPage)
+      // This is how we group pages - 1 is because chunk arrays are 0 index
+      const limitedIds = chunks[page - 1]
+      return dispatch('fetchThreads', { ids: limitedIds })
+    }
   },
 
   mutations: {
@@ -144,6 +154,9 @@ export default {
     appendContributorToThread: makeAppendChildToParentMutation({
       parent: 'threads',
       child: 'contributors'
-    })
+    }),
+    clearThreads(state) {
+      state.items = []
+    }
   }
 }

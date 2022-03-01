@@ -105,6 +105,14 @@ figcaption {
   flex-basis: 52%;
 }
 
+.Pagination {
+  justify-content: center;
+  margin: 40px !important;
+}
+.Pagination .Page-active {
+  color: white;
+}
+
 @media (min-width: 240px) and (max-width: 720px) {
   .forum-list .forum-listing .forum-details {
     flex-basis: 100%;
