@@ -1,4 +1,5 @@
 import db from '@/main'
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import {
   doc,
   collection,
@@ -56,6 +57,60 @@ export default {
     ) {
       const auth = getAuth()
       const result = await createUserWithEmailAndPassword(auth, email, password)
+
+      if (avatar) {
+        // lines 63 to 71 sucessfully upload image
+        const storage = getStorage()
+        const storageRef = ref(
+          storage,
+          `uploads/${result.user.uid}/images/${Date.now()}-${avatar.name}`
+        )
+
+        uploadBytes(storageRef, avatar).then((snapshot) => {
+          console.log('Uploaded a blob or file!')
+        })
+
+        // This is where I am haing trouble
+        // This is what I tried note I changed the storage rules as suggested in next video
+        // Docs for file download https://firebase.google.com/docs/storage/web/download-files
+        getDownloadURL(storageRef)
+          .then((url) => {
+            console.log({ url })
+            // Insert url into an <img> tag to "download"
+          })
+          .catch((error) => {
+            // A full list of error codes is available at
+            // https://firebase.google.com/docs/storage/web/handle-errors
+            switch (error.code) {
+              case 'storage/object-not-found':
+                // File doesn't exist
+                break
+              case 'storage/unauthorized':
+                // User doesn't have permission to access the object
+                break
+              case 'storage/canceled':
+                // User canceled the upload
+                break
+
+              case 'storage/unknown':
+                // Unknown error occurred, inspect the server response
+                break
+            }
+          })
+        // just temporary
+        avatar =
+          'https://res.cloudinary.com/dnpje4e34/image/upload/v1641851671/Default-img_cntbq2.png'
+
+        // This is way it's done in firebase 8
+        // const storageBucket = firebase
+        //   .storage()
+        //   .ref()
+        //   .child(
+        //     `uploads/${result.user.uid}/images/${Date.now()}-${avatar.name}`
+        //   )
+        // const snapshot = await storageBucket.put(avatar)
+        // avatar = await snapshot.ref.getDownloadURL()
+      }
 
       await dispatch(
         'users/createUser',
@@ -136,14 +191,14 @@ export default {
         collection(db, 'posts'),
         where('userId', '==', state.authId),
         orderBy('publishedAt', 'desc'),
-        lastPost ? startAfter(await getDoc(doc(db, 'posts', lastPost.id))) : null,
+        lastPost
+          ? startAfter(await getDoc(doc(db, 'posts', lastPost.id)))
+          : null,
         limit(10)
-      ].filter(param => param !== null)
+      ].filter((param) => param !== null)
 
       // then we can spread the args into the query function (with startAfter set appropriately based on the value of lastPost)
-      const postsQuery = query(
-        ...queryArgs
-      )
+      const postsQuery = query(...queryArgs)
       // I am not doing anything here with startAfter posts not sure what to do?
       const querySnapshot = await getDocs(postsQuery)
       querySnapshot.forEach((item) => {
