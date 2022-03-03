@@ -10,6 +10,8 @@ In this repository I am following along with Vue Schools Masterclass. I have dec
 
 [Vue School Masterclass](https://vueschool.io/courses/the-vuejs-3-master-class)
 
+[Vue CLI Docs](https://cli.vuejs.org/)
+
 [Vue Dev Tools](https://devtools.vuejs.org/guide/installation.html)
 
 [Cloud Firestore Docs](https://firebase.google.com/docs/firestore)
