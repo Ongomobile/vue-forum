@@ -40,7 +40,7 @@
         </div>
 
         <div class="form-group">
-          <label for="avatar">
+          <label for="avatar" style="cursor: pointer">
             Avatar
             <div v-if="avatarPreview">
               <img :src="avatarPreview" class="avatar-xlarge" />
