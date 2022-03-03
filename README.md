@@ -2,7 +2,7 @@
 
 ## Description
 
-In this repository I am following along with Vue Schools Masterclass. I have decided to use Firebase 9 in this project.
+In this repository I am following along with the Vue Schools Masterclass. I have decided to use Firebase 9 in this project.
 
 ---
 
@@ -25,6 +25,8 @@ In this repository I am following along with Vue Schools Masterclass. I have dec
 [Lodash Docs](https://lodash.com/docs/)
 
 [Fontawesome Vue Docs](https://fontawesome.com/docs/web/use-with/vue/)
+
+[User Placeholder Image](https://commons.wikimedia.org/wiki/File:Portrait_Placeholder.png)
 
 ## Project setup
 
