@@ -5,7 +5,7 @@
         <a href="#" class="user-name"> {{ userById(post.userId).name }}</a>
 
         <a href="#">
-          <img
+          <AppAvatarImg
             class="avatar-large"
             :src="userById(post.userId).avatar"
             alt=""
