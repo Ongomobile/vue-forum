@@ -1,13 +1,22 @@
 <template>
   <div class="profile-card">
     <form @submit.prevent="save">
-      <p class="text-center">
+      <p class="text-center avatar-edit">
         <label for="avatar" style="cursor: pointer">
           <img
-            :src="user.avatar"
+            :src="activeUser.avatar"
             :alt="`${user.name} profile picture`"
             class="avatar-xlarge img-update"
           />
+          <div class="avatar-upload-overlay">
+            <AppSpinner v-if="uploadingImage" color="white" />
+            <fa
+              v-else
+              icon="camera"
+              size="3x"
+              :style="{ color: 'white', opacity: '8' }"
+            />
+          </div>
           <input
             v-show="false"
             type="file"
@@ -99,7 +108,8 @@ export default {
       // We need to clone user object using spread operator so we are not mutating the refferenced user object directly
       // this way the activeUser object is unique. Objects are passed by refference so be careful not to mutate the wrong object.
       // When setting objects to a variable always clone so not to mutate original object.
-      activeUser: { ...this.user }
+      activeUser: { ...this.user },
+      uploadingImage: false
     }
   },
   props: {
@@ -111,8 +121,10 @@ export default {
   methods: {
     ...mapActions('auth', ['uploadAvatar']),
     async handleAvatarUpload(e) {
+      this.uploadingImage = true
       const file = e.target.files[0]
       this.activeUser.avatar = await this.uploadAvatar({ file })
+      this.uploadingImage = false
     },
     save() {
       // We need to clone user object using spread operator so our changes only affect the current change and not the previous state
