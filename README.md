@@ -10,7 +10,19 @@ In this repository I am following along with Vue Schools Masterclass. I have dec
 
 [Vue School Masterclass](https://vueschool.io/courses/the-vuejs-3-master-class)
 
-[Vue Dev Tools](https://vueschool.io/courses/the-vuejs-3-master-class)
+[Vue Dev Tools](https://devtools.vuejs.org/guide/installation.html)
+
+[Cloud Firestore Docs](https://firebase.google.com/docs/firestore)
+
+[Firebase Cloud Storage Docs](ase.google.com/docs/storage)
+
+[Firebase Authentication Docs](https://firebase.google.com/docs/auth)
+
+[Intersection Observer Docs](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API)
+
+[Lodash Docs](https://lodash.com/docs/)
+
+[Fontawesome Vue Docs](https://fontawesome.com/docs/web/use-with/vue/)
 
 ## Project setup
 
