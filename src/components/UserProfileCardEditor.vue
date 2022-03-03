@@ -14,7 +14,7 @@
               v-else
               icon="camera"
               size="3x"
-              :style="{ color: 'white', opacity: '8' }"
+              :style="{ color: 'white', opacity: '.8' }"
             />
           </div>
           <input
@@ -26,7 +26,7 @@
           />
         </label>
       </p>
-
+      <UserProfileCardEditorRandomAvatar @hit="activeUser.avatar = $event" />
       <div class="form-group">
         <input
           v-model="activeUser.username"
@@ -102,6 +102,7 @@
 
 <script>
 import { mapActions } from 'vuex'
+import UserProfileCardEditorRandomAvatar from './UserProfileCardEditorRandomAvatar'
 export default {
   data() {
     return {
@@ -112,6 +113,7 @@ export default {
       uploadingImage: false
     }
   },
+  components: { UserProfileCardEditorRandomAvatar },
   props: {
     user: {
       type: Object,

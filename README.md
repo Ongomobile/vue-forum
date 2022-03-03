@@ -28,6 +28,8 @@ In this repository I am following along with the Vue Schools Masterclass. I have
 
 [User Placeholder Image](https://commons.wikimedia.org/wiki/File:Portrait_Placeholder.png)
 
+[Pixabay API Docs](https://pixabay.com/api/docs/)
+
 ## Project setup
 
 ```
