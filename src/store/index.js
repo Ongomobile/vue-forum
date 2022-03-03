@@ -10,7 +10,7 @@ import users from './modules/users'
 import auth from './modules/auth'
 
 export default createStore({
-  plugins: [createLogger()],
+  // plugins: [createLogger()],
   modules: {
     categories,
     forums,
