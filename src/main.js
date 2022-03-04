@@ -10,6 +10,7 @@ import FontAwesome from '@/plugins/FontAwesome'
 import ClickOutsideDirective from '@/plugins/ClickOutsideDirective'
 import PageScrollDirective from '@/plugins/PageScrollDirective'
 import Vue3Pagination from '@/plugins/Vue3Pagination'
+import VeeValidatePlugin from '@/plugins/VeeValidatePlugin'
 
 const fbApp = initializeApp(firebaseConfig)
 const db = getFirestore(fbApp)
@@ -23,6 +24,7 @@ forumApp.use(FontAwesome)
 forumApp.use(ClickOutsideDirective)
 forumApp.use(PageScrollDirective)
 forumApp.use(Vue3Pagination)
+forumApp.use(VeeValidatePlugin)
 
 const requireComponent = require.context(
   './components',
