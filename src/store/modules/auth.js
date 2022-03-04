@@ -156,9 +156,6 @@ export default {
       commit('setAuthId', userId)
     },
     async fetchAuthUsersPosts({ commit, state }, { lastPost }) {
-      // Docs I have looked at
-      //  https:firebase.google.com/docs/firestore/query-data/query-cursors
-
       // Because firebase 9 creates the query via the query() function
       // let's collection all the args here first
       // and then filter out any null values (ie. the startAfter if lastPost is null)
@@ -174,8 +171,9 @@ export default {
 
       // then we can spread the args into the query function (with startAfter set appropriately based on the value of lastPost)
       const postsQuery = query(...queryArgs)
-      // I am not doing anything here with startAfter posts not sure what to do?
+
       const querySnapshot = await getDocs(postsQuery)
+
       querySnapshot.forEach((item) => {
         commit('setItem', { resource: 'posts', item }, { root: true })
       })
