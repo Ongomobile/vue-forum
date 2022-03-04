@@ -30,6 +30,8 @@ In this repository I am following along with the Vue Schools Masterclass. I have
 
 [Pixabay API Docs](https://pixabay.com/api/docs/)
 
+[Vee Validate Docs](https://vee-validate.logaretm.com/v4/)
+
 ## Project setup
 
 ```
