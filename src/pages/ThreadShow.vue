@@ -84,7 +84,6 @@ export default {
       const posts = await this.fetchPosts({
         ids,
         callBack: ({ isLocal, previousItem }) => {
-          console.log(isLocal)
           if (
             !this.asyncDataStatus_ready ||
             isLocal ||

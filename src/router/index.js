@@ -133,7 +133,6 @@ router.afterEach(() => {
 // Global navigation guard we wait for async data to resolve
 router.beforeEach(async (to, from) => {
   await store.dispatch('auth/initAuthentication')
-  console.log(`🚦 navigating to ${to.name} from ${from.name}`)
   store.dispatch('unsubscribeAllSnapshots')
   if (to.meta.requiresAuth && !store.state.auth.authId) {
     return { name: 'SignIn', query: { redirectTo: to.path } }

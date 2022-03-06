@@ -40,7 +40,6 @@ export default {
       return new Promise((resolve) => {
         const auth = getAuth()
         const unsubscribe = auth.onAuthStateChanged(async (user) => {
-          console.log('👣 the user has changed')
           this.dispatch('auth/unsubscribeAuthUserSnapshot')
           if (user) {
             await this.dispatch('auth/fetchAuthUser')
@@ -101,7 +100,6 @@ export default {
     },
 
     signInWithEmailAndPassword(context, { email, password }) {
-      console.log(email, password)
       const auth = getAuth()
       return signInWithEmailAndPassword(auth, email, password)
     },

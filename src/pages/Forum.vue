@@ -16,12 +16,7 @@
     </div>
     <div class="col-full push-top">
       <ThreadList :threads="threads" />
-      <v-pagination
-        v-model="page"
-        :pages="totalPages"
-        active-color="#57AD8D"
-        @update:modelValue="updateHandler"
-      />
+      <v-pagination v-model="page" :pages="totalPages" active-color="#57AD8D" />
     </div>
   </div>
 </template>
