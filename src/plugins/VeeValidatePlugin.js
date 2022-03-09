@@ -1,5 +1,5 @@
 import { Form, Field, ErrorMessage, defineRule, configure } from 'vee-validate'
-import { required, email, min } from '@vee-validate/rules'
+import { required, email, min, url } from '@vee-validate/rules'
 import { localize } from '@vee-validate/i18n'
 import db from '@/main'
 import { collection, getDocs, query, where } from 'firebase/firestore'
@@ -8,13 +8,14 @@ export default (app) => {
   defineRule('email', email)
   defineRule('min', min)
   defineRule('unique', async (value, args) => {
-    let coll, field
+    let coll, field, excluding
 
     if (Array.isArray(args)) {
-      ;[coll, field] = args
+      ;[coll, field, excluding] = args
     } else {
-      ;({ coll, field } = args)
+      ;({ coll, field, excluding } = args)
     }
+    if (value === excluding) return true
 
     const queryArgs = [collection(db, coll), where(field, '==', value)]
     const fieldQuery = query(...queryArgs)
@@ -27,8 +28,9 @@ export default (app) => {
       messages: {
         required: '{field} is required',
         email: '{field} must be a valid email',
-        min: '{field} must be 0:{min} characters long',
-        unique: '{field} is already taken'
+        min: '{field} must be a minimum of 0:{min} characters',
+        unique: '{field} is already taken',
+        url: '{field} must be a valid URL'
       }
     })
   })

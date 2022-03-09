@@ -1,17 +1,14 @@
 <template>
   <div class="col-full">
-    <form @submit.prevent="save">
-      <div class="form-group">
-        <label for="thread_content">Reply:</label>
-        <textarea
-          v-model="postCopy.text"
-          id="thread_content"
-          class="form-input"
-          name="content"
-          rows="8"
-          cols="140"
-        ></textarea>
-      </div>
+    <VeeForm @submit="save" :key="formKey">
+      <AppFormField
+        as="textarea"
+        name="text"
+        v-model="postCopy.text"
+        rows="10"
+        cols="30"
+        rules="required"
+      />
 
       <div class="btn-group">
         <button class="btn btn-ghost">Cancel</button>
@@ -19,7 +16,7 @@
           {{ post.id ? 'Update Post' : 'Submit Post' }}
         </button>
       </div>
-    </form>
+    </VeeForm>
   </div>
 </template>
 
@@ -30,13 +27,16 @@ export default {
   },
   data() {
     return {
-      postCopy: { ...this.post }
+      postCopy: { ...this.post },
+      // This property is a hack to rerender component so error message does not show after submitting text in textarea
+      formKey: Math.random()
     }
   },
   methods: {
     save() {
       this.$emit('save', { post: this.postCopy })
       this.postCopy.text = ''
+      this.formKey = Math.random()
     }
   }
 }
