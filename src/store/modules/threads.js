@@ -79,23 +79,23 @@ export default {
       )
       commit(
         'users/appendThreadtoUser',
-        { parentId: userId, childId: newThread.id },
+        { parentId: userId, childId: threadRef.id },
         { root: true }
       )
       commit(
         'forums/appendThreadtoForum',
         {
           parentId: forumId,
-          childId: newThread.id
+          childId: threadRef.id
         },
         { root: true }
       )
       await dispatch(
         'posts/createPost',
-        { text, threadId: newThread.id },
+        { text, threadId: threadRef.id, firstInThread: true },
         { root: true }
       )
-      return findById(state.items, newThread.id)
+      return findById(state.items, threadRef.id)
     },
 
     async updateThread({ commit, state, rootState }, { title, text, id }) {
