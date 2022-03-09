@@ -70,7 +70,16 @@
         label="Location"
         name="location"
         v-model="activeUser.location"
+        list="locations"
+        @mouseenter="loadLocationOptions"
       />
+      <datalist id="locations">
+        <option
+          v-for="location in locationOptions"
+          :value="location.name.common"
+          :key="location.name.common"
+        />
+      </datalist>
 
       <div class="btn-group space-between">
         <button class="btn-ghost" @click.prevent="cancel">Cancel</button>
@@ -90,7 +99,8 @@ export default {
       // this way the activeUser object is unique. Objects are passed by refference so be careful not to mutate the wrong object.
       // When setting objects to a variable always clone so not to mutate original object.
       activeUser: { ...this.user },
-      uploadingImage: false
+      uploadingImage: false,
+      locationOptions: []
     }
   },
   components: { UserProfileCardEditorRandomAvatar },
@@ -102,6 +112,11 @@ export default {
   },
   methods: {
     ...mapActions('auth', ['uploadAvatar']),
+    async loadLocationOptions() {
+      if (this.locationOptions.length) return
+      const res = await fetch('https://restcountries.com/v3/all')
+      this.locationOptions = await res.json()
+    },
     async handleAvatarUpload(e) {
       this.uploadingImage = true
       const file = e.target.files[0]

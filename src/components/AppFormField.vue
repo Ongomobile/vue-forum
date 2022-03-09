@@ -15,6 +15,8 @@
 </template>
 <script>
 export default {
+  // This property is so root element does not inherit event listner causing multible calls to api end point
+  inheritAttrs: false,
   props: {
     name: { type: String, required: true },
     label: { type: String, required: true },

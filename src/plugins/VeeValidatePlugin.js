@@ -7,6 +7,7 @@ export default (app) => {
   defineRule('required', required)
   defineRule('email', email)
   defineRule('min', min)
+  defineRule('url', url)
   defineRule('unique', async (value, args) => {
     let coll, field, excluding
 
