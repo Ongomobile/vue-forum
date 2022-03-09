@@ -1,4 +1,4 @@
-import db from '@/main'
+import { db } from '@/helpers/firebase'
 import { doc, onSnapshot } from 'firebase/firestore'
 import { findById } from '@/helpers'
 export default {

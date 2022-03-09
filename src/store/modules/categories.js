@@ -1,4 +1,4 @@
-import db from '@/main'
+import { db } from '@/helpers/firebase'
 import { collection, getDocs } from 'firebase/firestore'
 import { makeFetchItemAction, makeFetchItemsAction } from '@/helpers'
 export default {

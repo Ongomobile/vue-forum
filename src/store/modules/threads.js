@@ -6,7 +6,7 @@ import {
   makeFetchItemsAction
 } from '@/helpers'
 
-import db from '@/main'
+import { db } from '@/helpers/firebase'
 import {
   arrayUnion,
   serverTimestamp,

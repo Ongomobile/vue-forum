@@ -1,6 +1,7 @@
-import db from '@/main'
+// import db from '@/main'
+import { db, auth, storage } from '@/helpers/firebase'
 import useNotifications from '@/composables/useNotifications'
-import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import {
   doc,
   collection,
@@ -13,7 +14,6 @@ import {
   startAfter
 } from 'firebase/firestore'
 import {
-  getAuth,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   GoogleAuthProvider,
@@ -38,7 +38,6 @@ export default {
     initAuthentication({ dispatch, commit, state }) {
       if (state.authObserverUnsubscribe) state.authObserverUnsubscribe()
       return new Promise((resolve) => {
-        const auth = getAuth()
         const unsubscribe = auth.onAuthStateChanged(async (user) => {
           this.dispatch('auth/unsubscribeAuthUserSnapshot')
           if (user) {
@@ -55,7 +54,6 @@ export default {
       { dispatch },
       { avatar = null, email, name, username, password }
     ) {
-      const auth = getAuth()
       const result = await createUserWithEmailAndPassword(auth, email, password)
 
       avatar = await dispatch('uploadAvatar', {
@@ -81,7 +79,6 @@ export default {
       authId = authId || state.authId
       filename = filename || file.name
       try {
-        const storage = getStorage()
         const storageRef = ref(
           storage,
           `uploads/${authId}/images/${Date.now()}-${filename}`
@@ -100,12 +97,10 @@ export default {
     },
 
     signInWithEmailAndPassword(context, { email, password }) {
-      const auth = getAuth()
       return signInWithEmailAndPassword(auth, email, password)
     },
     async signInWithGoogle({ dispatch }) {
       try {
-        const auth = getAuth()
         const provider = new GoogleAuthProvider()
         const response = await signInWithPopup(auth, provider)
         const user = response.user
@@ -129,12 +124,10 @@ export default {
       }
     },
     async signOut({ commit }) {
-      const auth = getAuth()
       await auth.signOut()
       commit('setAuthId', null)
     },
     fetchAuthUser: async ({ dispatch, state, commit }) => {
-      const auth = getAuth()
       const userId = auth.currentUser?.uid
       if (!userId) return
 
