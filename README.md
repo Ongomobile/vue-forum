@@ -36,6 +36,12 @@ In this repository I am following along with the Vue Schools Masterclass. I have
 
 [Rest Countries API](https://restcountries.com/)
 
+[Webpack bundle Analyzer](https://www.npmjs.com/package/vue-cli-plugin-webpack-bundle-analyzer)
+
+[Vue Use Head](https://github.com/vueuse/head)
+
+[Social Share Preview Chrome Extension](https://chrome.google.com/webstore/detail/social-share-preview/ggnikicjfklimmffbkhknndafpdlabib)
+
 ## Project setup
 
 ```
