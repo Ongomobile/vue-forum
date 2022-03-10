@@ -78,12 +78,12 @@ export default {
         { root: true }
       )
       commit(
-        'users/appendThreadtoUser',
+        'users/appendThreadToUser',
         { parentId: userId, childId: threadRef.id },
         { root: true }
       )
       commit(
-        'forums/appendThreadtoForum',
+        'forums/appendThreadToForum',
         {
           parentId: forumId,
           childId: threadRef.id

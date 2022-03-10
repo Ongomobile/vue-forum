@@ -15,9 +15,7 @@ export default {
   state: {
     items: []
   },
-
   getters: {},
-
   actions: {
     async createPost({ commit, state, rootState }, post) {
       post.userId = rootState.auth.authId
@@ -25,25 +23,15 @@ export default {
       post.firstInThread = post.firstInThread || false
       const batch = writeBatch(db)
       const postRef = doc(collection(db, 'posts'))
-      // const threadRef = firebase
-      //   .firestore()
-      //   .collection('threads')
-      //   .doc(post.threadId)
       const threadRef = doc(db, 'threads', post.threadId)
       const userRef = doc(db, 'users', rootState.auth.authId)
       batch.set(postRef, post)
-      // batch.update(doc(db, 'threads', post.threadId), {
-      //   posts: arrayUnion(postRef.id),
-      //   contributors: arrayUnion(rootState.auth.authId)
-      // })
-
       const threadUpdates = {
         posts: arrayUnion(postRef.id)
       }
       if (!post.firstInThread) {
         threadUpdates.contributors = arrayUnion(rootState.auth.authId)
       }
-
       batch.update(threadRef, threadUpdates)
       batch.update(userRef, {
         postsCount: increment(1)
@@ -66,7 +54,6 @@ export default {
         },
         { root: true }
       )
-
       if (!post.firstInThread) {
         commit(
           'threads/appendContributorToThread',
@@ -75,7 +62,6 @@ export default {
         )
       }
     },
-
     async updatePost({ commit, state, rootState }, { text, id }) {
       const post = {
         text,
@@ -94,10 +80,8 @@ export default {
         { root: true }
       )
     },
-
     fetchPost: makeFetchItemAction({ emoji: '💬', resource: 'posts' }),
     fetchPosts: makeFetchItemsAction({ emoji: '💬', resource: 'posts' })
   },
-
   mutations: {}
 }

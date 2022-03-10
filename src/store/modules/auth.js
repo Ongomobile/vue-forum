@@ -1,4 +1,3 @@
-// import db from '@/main'
 import { db, auth, storage } from '@/helpers/firebase'
 import useNotifications from '@/composables/useNotifications'
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
