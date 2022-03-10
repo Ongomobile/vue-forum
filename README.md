@@ -33,6 +33,7 @@ In this repository I am following along with the Vue Schools Masterclass. I have
 [Vee Validate Docs](https://vee-validate.logaretm.com/v4/)
 
 [Vue Final Modal Docs](https://v3.vue-final-modal.org/)
+
 [Rest Countries API](https://restcountries.com/)
 
 ## Project setup

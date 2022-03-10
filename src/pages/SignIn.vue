@@ -1,7 +1,7 @@
 <template>
   <div class="flex-grid justify-center">
     <div class="col-2">
-      <VeeForm @submit.prevent="signIn" class="card card-form">
+      <VeeForm @submit="signIn" class="card card-form">
         <h1 class="text-center">Login</h1>
 
         <AppFormField

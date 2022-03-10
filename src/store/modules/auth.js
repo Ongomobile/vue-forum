@@ -17,7 +17,10 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   GoogleAuthProvider,
-  signInWithPopup
+  signInWithPopup,
+  updateEmail,
+  reauthenticateWithCredential,
+  EmailAuthProvider
 } from 'firebase/auth'
 
 export default {
@@ -35,6 +38,18 @@ export default {
   },
 
   actions: {
+    async updateEmail({ state }, { email }) {
+      return updateEmail(auth.currentUser, email)
+    },
+    async reauthenticate({ state }, { email, password }) {
+      try {
+        const credential = EmailAuthProvider.credential(email, password)
+        const user = auth.currentUser
+        await reauthenticateWithCredential(user, credential)
+      } catch (error) {
+        console.log({ error })
+      }
+    },
     initAuthentication({ dispatch, commit, state }) {
       if (state.authObserverUnsubscribe) state.authObserverUnsubscribe()
       return new Promise((resolve) => {
