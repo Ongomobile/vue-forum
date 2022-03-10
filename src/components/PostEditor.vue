@@ -4,7 +4,6 @@
       <AppFormField
         as="textarea"
         name="text"
-        label=""
         v-model="postCopy.text"
         rows="10"
         cols="30"

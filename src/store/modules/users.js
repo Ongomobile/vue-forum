@@ -45,7 +45,7 @@ export default {
               (thread) => thread.userId === user.id
             )
           },
-          get theThreads() {
+          get threadIds() {
             return user.threads
           },
           get threadsCount() {

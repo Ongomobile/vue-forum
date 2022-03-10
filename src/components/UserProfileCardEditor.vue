@@ -139,7 +139,10 @@ export default {
     async save() {
       await this.handleRandomAvatarUpload()
       // We need to clone user object using spread operator so our changes only affect the current change and not the previous state
-      this.$store.dispatch('users/updateUser', { ...this.activeUser })
+      this.$store.dispatch('users/updateUser', {
+        ...this.activeUser,
+        threads: this.activeUser.threadIds
+      })
       this.$router.push({ name: 'Profile' })
     },
     cancel() {

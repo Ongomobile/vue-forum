@@ -2,15 +2,17 @@
   <div class="post-list">
     <div class="post" v-for="post in posts" :key="post.id">
       <div v-if="userById(post.userId)" class="user-info">
-        <a href="#" class="user-name"> {{ userById(post.userId).name }}</a>
+        <router-link :to="{ name: 'Profile' }" class="user-name">{{
+          userById(post.userId).name
+        }}</router-link>
 
-        <a href="#">
+        <router-link :to="{ name: 'Profile' }">
           <AppAvatarImg
             class="avatar-large"
             :src="userById(post.userId).avatar"
             alt=""
           />
-        </a>
+        </router-link>
 
         <p class="desktop-only text-small">
           {{ userById(post.userId).postsCount }}

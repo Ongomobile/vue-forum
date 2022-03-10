@@ -12,7 +12,10 @@
       </router-link>
     </h1>
     <p>
-      By <a href="#" class="link-unstyled">{{ thread.author?.name }}</a
+      By
+      <router-link :to="{ name: 'Profile' }" class="link-unstyled">{{
+        thread.author?.name
+      }}</router-link
       >, <AppDate :timestamp="thread.publishedAt" />.
       <span
         style="float: right; margin-top: 2px"
