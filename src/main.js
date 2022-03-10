@@ -7,6 +7,7 @@ import ClickOutsideDirective from '@/plugins/ClickOutsideDirective'
 import PageScrollDirective from '@/plugins/PageScrollDirective'
 import Vue3Pagination from '@/plugins/Vue3Pagination'
 import VeeValidatePlugin from '@/plugins/VeeValidatePlugin'
+import { createHead } from '@vueuse/head'
 
 const forumApp = createApp(App)
 forumApp.use(router)
@@ -16,6 +17,7 @@ forumApp.use(ClickOutsideDirective)
 forumApp.use(PageScrollDirective)
 forumApp.use(Vue3Pagination)
 forumApp.use(VeeValidatePlugin)
+forumApp.use(createHead())
 
 const requireComponent = require.context(
   './components',

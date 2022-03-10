@@ -42,6 +42,8 @@ In this repository I am following along with the Vue Schools Masterclass. I have
 
 [Social Share Preview Chrome Extension](https://chrome.google.com/webstore/detail/social-share-preview/ggnikicjfklimmffbkhknndafpdlabib)
 
+[Twitter Card Validator](https://cards-dev.twitter.com/validator)
+
 ## Project setup
 
 ```
