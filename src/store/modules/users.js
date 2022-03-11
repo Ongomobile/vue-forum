@@ -99,7 +99,7 @@ export default {
   },
 
   mutations: {
-    appendThreadtoUser: makeAppendChildToParentMutation({
+    appendThreadToUser: makeAppendChildToParentMutation({
       parent: 'users',
       child: 'threads'
     })
