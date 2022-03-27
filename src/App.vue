@@ -1,7 +1,10 @@
 <template>
   <AppHead>
     <title>Vue.js 3 Master Class Forum</title>
-    <meta name="description" content="An awesome Vue.js 3 powered forum!" />
+    <meta
+      name="description"
+      content="An awesome Vue.js 3 powered forum! qddd extra lines"
+    />
 
     <!-- Social -->
     <meta property="og:title" content="Vue.js 3 Master Class Forum" />

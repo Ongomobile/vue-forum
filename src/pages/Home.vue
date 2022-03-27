@@ -8,12 +8,12 @@
 <script>
 import CategoryList from '@/components/CategoryList'
 import { mapActions } from 'vuex'
-import asynDataStatus from '@/mixins/asyncDataStatus'
+import asyncDataStatus from '@/mixins/asyncDataStatus'
 export default {
   components: {
     CategoryList
   },
-  mixins: [asynDataStatus],
+  mixins: [asyncDataStatus],
   computed: {
     categories() {
       return this.$store.state.categories.items
